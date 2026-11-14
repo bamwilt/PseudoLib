@@ -1,120 +1,98 @@
-// copy on Graphviz.com
-digraph PseintMax {
-    graph [bgcolor="#ccf", fontsize=12, fontname="monospace" , pad=1];
-     
+// copy on GraphvizOnline
+// https://dreampuf.github.io/GraphvizOnline
+digraph PseIntMax {
+    graph [bgcolor="#ccf", fontsize=12, fontname="monospace"];
+
     node [
         shape=box,
         style="rounded,filled",
         fontname="monospace",
-        fontsize=12,
+        fontsize=20,
         margin=0.7,
-        fillcolor="#020202", 
+        fillcolor="#020202",
         color="#d0d7de",
-        fontcolor="#7f7"  
+        fontcolor="#7f7"
     ];
+
+    // --- Tipos Base y Primitivos ---
+    native -> number;
+    native -> string;
+    native -> bool;
+    native -> math;
+    native -> log;
     
-    Escribir_Sin_Saltar_nativeMethod[fontcolor="#ffc"]
-    Escribir_nativeMethod[fontcolor="#ffc"]
-    convertiraNumero_nativeMethod[fontcolor="#ffc"]
-    convertiraTexto_nativeMethod[fontcolor="#ffc"]
-    Mayusculas_nativeMethod[fontcolor="#ffc"]
-    Minusculas_nativeMethod[fontcolor="#ffc"]
-    Subcadena_nativeMethod[fontcolor="#ffc"]
+    number -> int;
+    number -> float;
     
-       String_join->String_join_withSeparator
-       String_join_array_withSeparator->String_join_withSeparator
-       String_join_array->String_join_withSeparator
-       
-       String_insert->__private_String_insert_general
-       String_insert_withReplace->__private_String_insert_general
-       tring_insert_from_End->String_insert
-       
-       __private_String_insert_general->String_substring_from_start
-       __private_String_insert_general->String_substring_from
-       __private_String_insert_general->if
-       __private_String_insert_general->String_length
-      __private_String_insert_general-> String_join_array
-      
-      String_remove->String_substring_from_start
-      String_remove->String_substring_fromString_replace
-      String_remove->String_join
-      
-      Boolean_ToString->if
-      Num_ToString->convertiraTexto_nativeMethod
-      
-      String_replace->String_Constains
-      String_replace->String_replace_firts
-      
-      String_replace_firts->String_indexOf
-      String_replace_firts->String_remove
-      String_replace_firts->String_insert
-      
-      String_trim->String_replace
-      
-      String_revert->String_length
-      String_revert->String_join
-      String_revert->CharAt
-      
-      String_ToUpperCase->  Mayusculas_nativeMethod
-      String_ToLowerCase->  Minusculas_nativeMethod
-      
-      String_substring->min_Int
-      String_substring->String_length
-      String_substring->rangeLimit_Int
-      String_substring->String_join
-      String_substring->if
-      String_substring->Subcadena_nativeMethod
-      
-      String_substring_from->String_substring
-      String_substring_from->String_length
-      
-      String_substring_from_start->String_substring
-      
-      String_substring_from_end->String_length
-      String_substring_from_end->String_substring_from
-      
-      CharAt->String_substring
-      
-      String_indexOf->__private_String_Indexof_general
-      
-      String_LastindexOf->__private_String_Indexof_general
-      
-      __private_String_Indexof_general->String_length
-      __private_String_Indexof_general->if
-      __private_String_Indexof_general->String_substring
-      __private_String_Indexof_general->String_isEquals
-      __private_String_Indexof_general->decrement
-      __private_String_Indexof_general->increment
-      
-      String_indexOf_specific->__private_String_indexOf_specific_general
-      String_indexOf_specific_OverLap->__private_String_indexOf_specific_general
-      
-      __private_String_indexOf_specific_general->if
-      __private_String_indexOf_specific_general->String_length
-      __private_String_indexOf_specific_general->String_Constains
-      __private_String_indexOf_specific_general->String_indexOf
-      __private_String_indexOf_specific_general->String_remove
-      __private_String_indexOf_specific_general->increment
-      
-      String_occurrences->__private_String_occurrences_general
-      String_occurrences_overlap->__private_String_occurrences_general
-      
-      __private_String_occurrences_general->String_Constains
-      __private_String_occurrences_general->if
-      __private_String_occurrences_general->String_indexOf
-      __private_String_occurrences_general->String_indexOf
-      __private_String_occurrences_general->String_remove
-      __private_String_occurrences_general->increment
-      
-      print->Escribir_Sin_Saltar_nativeMethod
-      println->Escribir_nativeMethod
-      
-      repeat->print
-      repeat_ln->println
-      lineBreak->println
-      
-      //length
-      TextToNum[fontcolor="#cff"] 
-      TextToNum->convertiraNumero_nativeMethod
-      
+    string -> value;
+    int -> value;
+    bool -> value;
+    float -> value;
+
+    // --- Cadenas, Tags y Estructuras Base ---
+    string -> ascii;
+    ascii -> tag;
+    tag -> pointerString;
+    pointerString -> collection;
+    tag -> collection;
+
+    // --- Colecciones y Tipos de Datos Avanzados ---
+    collection -> CollectionRouted;
+    collection -> StringBuilder;
+    
+    CollectionRouted -> CollectionDictionary;
+    CollectionUniform -> CollectionDictionary;
+    StringBuilder -> CollectionUniform;
+    
+    CollectionRouted -> collectionDictionaryTyped;
+    CollectionRouted -> List;
+    CollectionRouted -> Deque;
+    CollectionRouted -> Stack;
+    CollectionRouted -> Queue;
+    
+    CollectionUniform -> Table;
+    CollectionUniform -> Set;
+    
+    Table -> collectionDictionaryTyped;
+    collectionDictionaryTyped -> Object;
+    
+    CollectionDictionary -> tComponent;
+    tComponent -> Scheme;
+    CollectionDictionary -> Map;
+    
+    Table -> Scheme;
+    Scheme -> TUI;
+
+    // --- Salidas, Impresión y Utilidades ---
+    StringBuilder -> printer;
+    StringBuilder -> spriteString;
+
+    // --- Consola, TUI y Logs ---
+   
+    
+    string -> log;
+    native -> log;
+    
+    native -> console;
+    
+    canvas -> TUI;
+    math -> canvas;
+    string -> canvas;
+    TUI -> TUI_cursor;
+    console -> TUI_cursor;
+
+    // --- Temporal y Fechas ---
+    Temporal_And_Chronounit -> LocalDate;
+    Temporal_And_Chronounit -> LocalTime;
+    Temporal_And_Chronounit -> duration;
+    Temporal_And_Chronounit -> period;
+    
+    CollectionRouted -> LocalDate;
+    LocalDate -> LocalDateTime;
+    
+    CollectionRouted -> LocalTime;
+    LocalTime -> LocalDateTime;
+    
+    CollectionRouted -> duration;
+    CollectionRouted -> period;
 }

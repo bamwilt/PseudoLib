@@ -3,10 +3,9 @@ Funcion LinuxSprite
 	Definir Cx, Cy Como Numero;
 	Cx = 34; Cy =  14;
 	sprite = SpriteString_New();
-	sprite = SpriteString_AddLine(sprite, ":¯;     _  ____   _. ._ __  __"); 
-	sprite = SpriteString_AddLine(sprite, "| |    | ||  _ \ | | | |\ \/ /");
-	sprite = SpriteString_AddLine(sprite, "| |___ | || | | || |_| | >  < ");
-	sprite = SpriteString_AddLine(sprite, "|_____||_||_| |_| \___/ /_/\_\");
+	sprite = spriteString_addLine(sprite, "|    | |\  | |   | \ /");
+	sprite = spriteString_addLine(sprite, "|    | | \ | |   |  X ");
+	sprite = spriteString_addLine(sprite, "|___ | |  \|  \_/  / \");
 	canvas = canvas_New(Cx, Cy);
 	canvas = canvas_DrawSpriteString_Cutout(canvas, Cx, Cy, sprite, 2, 1);
 	canvas = canvas_DrawHorizontalLine_Full(canvas, Cx, Cy, 6);

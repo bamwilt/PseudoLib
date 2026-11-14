@@ -1,0 +1,2163 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>PseudoLib Studio · Carbon · v43</title>
+<style>
+  :root { color-scheme: dark; --bg:#0f1115; --panel:#171a21; --soft:#202633; --text:#e8ecf1; --muted:#aab4c3; --accent:#5cc8ff; --ok:#72d38c; --warn:#ffcc66; }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background:var(--bg); color:var(--text); }
+  header { padding:18px 22px; border-bottom:1px solid #283040; background:#12161d; }
+  header h1 { margin:0 0 6px; font-size:22px; }
+  header p { margin:0; color:var(--muted); }
+  .wrap { display:grid; gap:16px; max-width:1380px; margin:auto; padding:16px; }
+  .panel { background:var(--panel); border:1px solid #283040; border-radius:12px; padding:18px; }
+  h2 { margin:0 0 10px; font-size:17px; }
+  .topbar { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:14px; }
+  .topbar label { display:flex; align-items:center; gap:8px; }
+  .workspace-header { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+  .previews { display:grid; grid-template-columns:minmax(260px,0.8fr) minmax(320px,1.2fr); gap:12px; }
+  .cvbox { min-width:0; background:#0b0e13; border:1px solid #283040; border-radius:10px; padding:12px; }
+  .cvbox h3 { margin:0 0 8px; font-size:14px; color:#cfe2ff; }
+  .canvas-wrap { overflow:auto; display:flex; align-items:flex-start; justify-content:center; min-height:190px; max-height:520px; padding:12px; background-color:#080c11;
+    background-image:linear-gradient(45deg,#121923 25%,transparent 25%),linear-gradient(-45deg,#121923 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#121923 75%),linear-gradient(-45deg,transparent 75%,#121923 75%); background-size:16px 16px;background-position:0 0,0 8px,8px -8px,-8px 0; }
+  canvas { image-rendering: pixelated; background:#000; border:1px solid #374255; display:block; max-width:none; }
+  #origCanvas { max-width:100%; height:auto; max-height:480px; object-fit:contain; }
+  #quantCanvas { cursor:crosshair; touch-action:none; }
+  .config-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
+  .subpanel { border:1px solid #2b3545; border-radius:10px; padding:14px; background:#131822; display:grid; align-content:start; gap:12px; }
+  .subpanel h3 { margin:0; font-size:15px; }
+  .grid { display:grid; gap:10px; }
+  .row2 { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+  .row3 { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; }
+  label { display:grid; gap:6px; font-size:13px; color:var(--muted); }
+  input[type="text"], input[type="number"], textarea, select, input[type="color"] { width:100%; border:1px solid #324055; border-radius:8px; background:#0f131a; color:var(--text); padding:9px 10px; }
+  input[type="color"] { height:39px; padding:3px; }
+  input[type="file"] { max-width:340px; }
+  input[type="range"] { width:100%; }
+  textarea { min-height:350px; font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; resize:vertical; }
+  .checks { display:grid; gap:8px; font-size:14px; color:var(--text); }
+  .checks label { display:flex; align-items:center; gap:8px; color:var(--text); }
+  button { border:1px solid #355377; background:#15324e; color:#fff; padding:10px 12px; border-radius:8px; cursor:pointer; font-weight:600; }
+  button.secondary { background:#1d2430; border-color:#394861; }
+  button.ok { background:#184429; border-color:#2f6d47; }
+  button:disabled { opacity:.4; cursor:not-allowed; }
+  .actions { display:flex; flex-wrap:wrap; gap:8px; }
+  .note { color:var(--muted); font-size:12px; line-height:1.5; }
+  .stats { display:grid; grid-template-columns:repeat(3,minmax(120px,1fr)); gap:10px; margin-top:10px; }
+  .stat { background:#111723; border:1px solid #283040; border-radius:10px; padding:10px; }
+  .stat b { display:block; font-size:18px; color:#fff; }
+  .stat span { color:var(--muted); font-size:12px; }
+  .small { font-size:12px; color:var(--muted); }
+  .status { color:var(--muted); font-size:13px; }
+  .status.ready { color:var(--ok); }
+  .status.pending { color:var(--warn); }
+  .pill-note { font-size:12px; padding:7px 10px; background:#15283b; border-radius:8px; color:#c9e6ff; }
+  #generateBtn { background:#1b6d42; border-color:#39835b; font-size:15px; padding:12px 20px; }
+  .export-head { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:12px; }
+  @media(max-width:860px){ .previews,.config-grid{grid-template-columns:1fr;} .wrap{padding:10px;} .panel{padding:12px;} }
+  @media(max-width:540px){ .row3{grid-template-columns:1fr 1fr;} .stats{grid-template-columns:repeat(2,minmax(0,1fr));} }
+</style>
+
+<style id="studio-theme">
+:root{color-scheme:dark;--bg:#1e1e1e;--panel:#252526;--soft:#303033;--text:#cccccc;--muted:#969696;--accent:#3794ff;--ok:#89d185;--warn:#e5c07b;--line:#353536;--title:#181818;--input:#313131}
+html,body{min-height:100%;height:100%;overflow:hidden}body{background:#1e1e1e;font-family:Inter,Segoe UI,system-ui,sans-serif;font-size:13px}
+body>header,body>main.wrap{display:none!important}
+.studio{height:100dvh;display:grid;grid-template-rows:36px minmax(0,1fr) 23px;overflow:hidden;background:#1e1e1e}
+.studio-titlebar{display:flex;align-items:center;gap:10px;min-width:0;padding:0 10px 0 14px;background:#181818;border-bottom:1px solid #2b2b2b}
+.studio-logo{font-weight:800;font-size:12px;letter-spacing:.5px;color:#e7e7e7;display:flex;align-items:center;gap:9px;white-space:nowrap}
+.studio-logo span{color:#61b0ff;font-size:17px}
+.studio-menu{display:flex;align-items:center;gap:2px;margin-left:18px}
+.studio-menu button{padding:4px 10px;background:transparent;border:0;border-radius:4px;color:#aaa;font-weight:400;font-size:12px}
+.studio-menu button:hover,.studio-menu button.active{background:#363636;color:#fff}
+.studio-titlebar .bar-actions{margin-left:auto;display:flex;align-items:center;gap:8px}
+.studio-titlebar .bar-actions button{font-size:12px;border-radius:4px;padding:4px 12px;background:#2563a4;border:1px solid #347cc0;color:#fff}
+.studio-titlebar .bar-actions #generateBtn{font-size:12px!important;border-radius:4px!important;padding:5px 13px!important;background:#276e46!important;border-color:#367d55!important}
+.studio-content{display:grid;grid-template-columns:47px 315px minmax(0,1fr);overflow:hidden;min-height:0}
+.studio-content.sidebar-closed{grid-template-columns:47px 0 minmax(0,1fr)}
+.activity-rail{background:#181818;display:flex;align-items:center;flex-direction:column;gap:8px;padding-top:9px;border-right:1px solid #292929}
+.activity-rail button{display:flex;align-items:center;justify-content:center;background:transparent;border:0;border-left:2px solid transparent;border-radius:0;color:#8c8c8c;font-size:19px;padding:0;width:46px;height:41px}
+.activity-rail button:hover,.activity-rail button.selected{color:#fff;border-left-color:#389dff;background:#252526}
+.activity-bottom{margin-top:auto;padding-bottom:10px}
+.studio-sidebar{background:#252526;border-right:1px solid #333;min-width:0;overflow:hidden;display:flex;flex-direction:column}
+.sidebar-head{padding:11px 15px 10px;color:#b8b8b8;letter-spacing:1.15px;font-size:10px;font-weight:700;display:flex;justify-content:space-between;align-items:center}
+.sidebar-inner{overflow:auto;min-height:0;flex:1;padding:0 10px 15px}
+.sidebar-inner .panel{background:transparent;border:0;padding:0;margin:0;border-radius:0}
+.sidebar-inner .topbar{display:none}
+.sidebar-inner .config-grid{display:flex;flex-direction:column;gap:9px}
+.sidebar-inner .subpanel{border:1px solid #383838;background:#292929;border-radius:6px;padding:12px 10px;gap:10px}
+.sidebar-inner .subpanel .subpanel{background:#252525}
+.sidebar-inner .subpanel h3{font-size:12px;color:#dfdfdf;font-weight:650;margin:0 0 2px}
+.sidebar-inner .row2,.sidebar-inner .row3{gap:6px}
+.sidebar-inner label{font-size:11px;gap:5px;color:#aaa}
+.sidebar-inner .note{font-size:10.5px;line-height:1.55;color:#858585}
+.sidebar-inner input[type=text],.sidebar-inner input[type=number],.sidebar-inner select,.sidebar-inner input[type=color]{padding:6px 8px;border:1px solid #424242;border-radius:4px;background:#333;color:#d9d9d9;font-size:11px}
+.sidebar-inner button{background:#333;border-color:#424242;border-radius:4px;padding:7px;font-size:11px;font-weight:500}
+.sidebar-inner input[type=range]{accent-color:#3794ff}
+.sidebar-inner input[type=checkbox]{accent-color:#3794ff}
+.workspace{display:grid;grid-template-rows:minmax(220px,1fr) minmax(180px,35%);overflow:hidden;min-width:0;min-height:0;background:#1e1e1e}
+.workspace.code-max{grid-template-rows:0 minmax(0,1fr)}
+.workspace.preview-max{grid-template-rows:minmax(0,1fr) 0}
+.workspace-pane{display:flex;flex-direction:column;min-height:0;min-width:0;overflow:hidden}
+.editor-tabs{background:#252526;border-bottom:1px solid #343434;display:flex;align-items:center;min-height:35px;flex:0 0 35px;overflow-x:auto;scrollbar-width:thin}
+.editor-tab{display:flex;align-items:center;gap:7px;white-space:nowrap;min-width:max-content;color:#aaa;background:#2d2d2d;border:0;border-right:1px solid #373737;border-top:1px solid transparent;border-radius:0;padding:10px 14px;font-size:12px;font-weight:400;height:35px}
+.editor-tab.active{background:#1e1e1e;border-top-color:#3794ff;color:#eee}
+.editor-tabs .tab-spacer{flex:1}
+.editor-tabs .tiny-action{border:0;border-radius:3px;padding:3px 8px;background:transparent;color:#b9b9b9;font-size:13px;min-width:22px}
+.editor-tabs .tiny-action:hover{background:#3b3b3b}
+.studio-previewbody{min-height:0;flex:1;overflow:auto;position:relative;background:#1e1e1e}
+.studio-previewbody .panel{border:0;background:transparent;padding:0;border-radius:0;max-width:none}
+.studio-previewbody #previewSection>.topbar{padding:10px 18px;margin:0;border-bottom:1px solid #2e2e2e;background:#222;gap:9px}
+.studio-previewbody #previewSection .workspace-header h2{display:none}
+.studio-previewbody #previewSection .pill-note{background:#2a3631;color:#92bf9d;padding:4px 9px;border-radius:4px}
+.studio-previewbody #previewSection>.topbar label{display:none}
+.studio-previewbody #previewSection .previews{display:grid;grid-template-columns:1fr;gap:0}
+.studio-previewbody .cvbox{background:transparent;border:0;border-radius:0;padding:0}
+.studio-previewbody .cvbox h3{display:none}
+.studio-previewbody .cvbox .note{display:none}
+.studio-previewbody #origCanvas{max-width:none;max-height:none}
+.studio-previewbody .canvas-wrap{min-height:calc(100% - 0px);max-height:none;min-width:100%;overflow:auto;justify-content:center;align-items:flex-start;background:#191919;background-image:linear-gradient(45deg,#232323 25%,transparent 25%),linear-gradient(-45deg,#232323 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#232323 75%),linear-gradient(-45deg,transparent 75%,#232323 75%);background-size:16px 16px;background-position:0 0,0 8px,8px -8px,-8px 0;padding:25px}
+.studio-previewbody #previewSection>.stats,.studio-previewbody #previewSection>#statConsole{display:none}
+.studio-previewbody .previews .cvbox{display:none}
+.studio-previewbody .previews .cvbox.visible{display:block;height:100%}
+.studio-previewbody .previews{height:calc(100% - 0px)}
+.studio-previewbody .canvas-wrap{height:100%}
+#consoleTextPane{height:100%;display:flex;flex-direction:column;overflow:hidden;background:#141414}
+#consoleTextPane[hidden]{display:none!important}
+.terminal-toolbar{display:flex;align-items:center;gap:10px;padding:7px 15px;background:#202020;border-bottom:1px solid #303030;color:#999;font-size:11px;flex:0 0 auto;flex-wrap:wrap}
+.terminal-toolbar .term-name{color:#8cc7ff;font-weight:600;margin-right:auto}
+.terminal-toolbar label{display:flex;align-items:center;gap:8px;font-size:11px}
+.terminal-toolbar select{padding:3px 5px;border:1px solid #444;background:#303030;color:#ddd;border-radius:3px;font-size:11px}
+.terminal-toolbar input[type=range]{width:75px;accent-color:#3794ff}
+.terminal-scroll{min-height:0;overflow:auto;flex:1;padding:20px;background:#0c0c0c;scrollbar-color:#424242 #151515}
+#consoleTextPreview{display:table;white-space:pre;color:#ddd;background:#000;font-family:'DejaVu Sans Mono','Liberation Mono',Consolas,monospace;font-size:12px;line-height:1em;letter-spacing:0;font-variant-ligatures:none;tab-size:4;margin:0;padding:8px 12px;user-select:text;font-weight:normal}
+#consoleTextPreview .term-row{height:1em;white-space:pre;display:block}
+#consoleTextPreview .term-run{white-space:pre}
+#consoleZoomStage{position:relative;flex:0 0 auto}
+#consoleTextPreview{position:absolute;top:0;left:0;transform-origin:top left;width:max-content;max-width:none;will-change:transform}
+#consoleTextPreview[hidden]{display:none!important}
+.inline-zoom{display:flex;align-items:center;gap:3px;padding:0 6px;min-width:max-content;white-space:nowrap}
+.inline-zoom #zoomValue{width:55px;height:25px;text-align:right;padding:3px 4px;background:#181818;border:1px solid #454545;color:#c7dfff;border-radius:4px;font-size:12px;appearance:textfield}
+.inline-zoom #zoomValue::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.inline-zoom .zoom-unit{font-size:12px;color:#9caec4;padding-right:5px}
+.editor-tabs #zoomFitBtn{color:#a2caff;border:1px solid #404e62;padding:4px 7px}
+.studio-previewbody .canvas-wrap{justify-content:flex-start!important;align-items:flex-start!important}
+.studio-previewbody .canvas-wrap canvas{flex-shrink:0;max-width:none!important;max-height:none!important;margin:auto;image-rendering:pixelated}
+.terminal-scroll,.canvas-wrap{overscroll-behavior:contain;scrollbar-width:thin}
+.studio-previewbody .canvas-wrap.panning,.terminal-scroll.panning{cursor:grabbing!important;user-select:none}
+.studio-previewbody .canvas-wrap.panning canvas{pointer-events:none}
+/* El visor de píxeles usa la altura REAL del panel, no la altura del documento. */
+.studio-previewbody #previewSection{height:100%;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+.studio-previewbody #previewSection>.topbar{flex:0 0 auto}
+.studio-previewbody #previewSection>.previews{display:flex!important;flex-direction:column;height:auto!important;flex:1 1 0;min-height:0;overflow:hidden}
+.studio-previewbody #previewSection>.previews .cvbox.visible{display:flex;flex-direction:column;flex:1 1 0;min-height:0;height:auto!important;overflow:hidden}
+.studio-previewbody #previewSection>.previews .canvas-wrap{display:flex;flex:1 1 0;height:auto!important;min-height:0;max-height:none;overflow:auto}
+@media(max-width:740px){.inline-zoom{gap:1px}.inline-zoom #zoomValue{width:44px}.editor-tabs .editor-tab{padding:9px 10px}}
+
+#consoleEmpty{color:#777;padding:30px;line-height:1.7}
+#consoleEmpty[hidden]{display:none!important}
+.code-pane{border-top:1px solid #353535}
+.code-body{min-height:0;flex:1;overflow:hidden}
+.code-body #resultSection{height:100%;display:flex;flex-direction:column;min-height:0;min-width:0;padding:0;border:0;background:#1e1e1e;border-radius:0}
+.code-body .export-head{padding:8px 15px 4px;margin:0;background:#1e1e1e}
+.code-body .export-head h2{display:none}
+.code-body .export-head #generateBtn{display:none}
+.code-body .export-head .status{font-size:11px}
+.code-body .actions{padding:5px 15px;background:#1e1e1e;margin:0!important;gap:6px}
+.code-body .actions button{padding:4px 9px;font-size:11px;background:#313131;border:1px solid #454545;border-radius:3px;font-weight:450}
+.code-body .stats{display:none}
+.code-editor{display:grid;grid-template-columns:54px minmax(0,1fr);flex:1;min-height:0;border-top:1px solid #303030;background:#1e1e1e;overflow:hidden}
+.code-gutter{overflow:hidden;text-align:right;padding:12px 11px 12px 0;background:#202020;color:#686868;line-height:1.5;font:12px/1.5 'DejaVu Sans Mono',Consolas,monospace;user-select:none;white-space:pre}
+.code-editor textarea{min-height:0!important;height:100%!important;resize:none!important;border:0!important;border-radius:0!important;outline:none;background:#1e1e1e!important;color:#d4d4d4!important;padding:12px 10px!important;font:12px/1.5 'DejaVu Sans Mono',Consolas,monospace!important;white-space:pre;overflow:auto}
+.code-body #copyStatus{padding:4px 15px;background:#252526;border-top:1px solid #333;font-size:11px;min-height:20px}
+.studio-statusbar{background:#007acc;color:#fff;display:flex;align-items:center;gap:16px;justify-content:space-between;padding:0 12px;font-size:10.5px;white-space:nowrap;overflow:hidden}
+.studio-statusbar .status-group{display:flex;align-items:center;gap:17px}
+.ide-hidden{display:none!important}
+#inputDropzone{padding:11px 14px;margin:0 0 9px;border:1px dashed #565656;background:#292929;border-radius:5px;text-align:center;color:#b3b3b3;font-size:11px;cursor:pointer}
+#inputDropzone.drag{border-color:#3794ff;background:#28384a}
+#inputDropzone strong{display:block;color:#d7e8ff;margin-bottom:4px}
+#inputDropzone input{max-width:100%;font-size:10px}
+.console-pane-help{font-size:10px;color:#949494;padding:5px 15px;background:#1b1b1b;border-top:1px solid #303030}
+.studio-info{border-top:1px solid #363636;padding-top:6px;color:#929292;font-size:10px}.studio-info summary{cursor:pointer;color:#9daebc;list-style:none;user-select:none}.studio-info summary:before{content:"› ";color:#70b8ff}.studio-info[open] summary:before{content:"⌄ "}.studio-info .note{padding-top:7px}.studio-mini-stats{display:flex;gap:11px;margin-right:8px;color:#858585;font-size:11px;white-space:nowrap}
+.studio-mini-stats b{color:#d8d8d8;font-weight:500}
+#studioSideToggle{font-size:11px}
+@media(max-width:950px){.studio-content{grid-template-columns:43px 280px minmax(0,1fr)}.studio-content.sidebar-closed{grid-template-columns:43px 0 minmax(0,1fr)}.studio-mini-stats{display:none}.studio-menu{margin-left:0}.sidebar-inner .row2{grid-template-columns:1fr}}
+@media(max-width:660px){.studio-content{grid-template-columns:40px minmax(0,1fr)}.studio-sidebar{position:absolute;left:40px;top:36px;bottom:23px;width:min(315px,calc(100vw - 45px));z-index:40;box-shadow:5px 2px 15px #0008}.studio-content.sidebar-closed .studio-sidebar{display:none}.studio-content.sidebar-closed{grid-template-columns:40px minmax(0,1fr)}.studio-content:not(.sidebar-closed) .workspace{grid-column:2}.activity-rail button{width:40px}.workspace{grid-template-rows:minmax(180px,1fr) minmax(150px,35%)}.studio-menu button{padding:4px 5px}.studio-titlebar{gap:5px;padding-left:7px}.studio-logo{font-size:11px}.editor-tab{padding:10px 9px}.terminal-toolbar{gap:5px}.terminal-scroll{padding:7px}.terminal-toolbar .term-name{display:none}}
+</style>
+
+<style id="carbon-theme">
+/* Carbon: grafito, negro carbón y acentos de metal cálido.
+   Solo presentación; no modifica el renderizador ni los parámetros de cuantización. */
+:root{
+  color-scheme:dark;
+  --bg:#101214; --panel:#1b1e21; --soft:#25292d;
+  --text:#e2e3df; --muted:#9b9f9d; --accent:#d5ae67;
+  --ok:#94c8a1; --warn:#dbb477;
+  --line:#35393b; --title:#111315; --input:#25292b;
+  --carbon-0:#101214; --carbon-1:#16191b; --carbon-2:#1e2124;
+  --carbon-3:#262a2d; --carbon-4:#303438;
+  --carbon-border:#393e40; --carbon-border-soft:#2c3033;
+  --carbon-silver:#e6e7e3; --carbon-muted:#999f9f;
+  --carbon-gold:#d5ae67; --carbon-gold-hover:#eac887;
+}
+html,body{background:var(--carbon-0);color:var(--carbon-silver)}
+body{font-family:Inter,'Segoe UI',system-ui,sans-serif}
+.studio{background:var(--carbon-0)}
+.studio-titlebar{
+  background:linear-gradient(180deg,#202325 0%,#181a1c 100%);
+  border-bottom:1px solid #383c3e;
+  box-shadow:inset 0 1px 0 #ffffff08;
+}
+.studio-logo{color:#f0eee7;font-weight:750;letter-spacing:.65px}
+.studio-logo span{color:var(--carbon-gold)}
+.studio-menu button{color:#acafac}
+.studio-menu button:hover,.studio-menu button.active{background:#313537;color:#f6eee1}
+.studio-titlebar .bar-actions button{background:#303437;color:#e5e5e0;border:1px solid #484d4f}
+.studio-titlebar .bar-actions #generateBtn{
+  background:#c6a05e!important;border-color:#dbb875!important;
+  color:#1b1915!important;font-weight:750!important;
+  box-shadow:inset 0 1px 0 #fff4,0 1px 2px #0006;
+}
+.studio-titlebar .bar-actions #generateBtn:hover{
+  background:#e3bd7c!important;border-color:#f1d59d!important;
+}
+.studio-content{background:#121416}
+.activity-rail{
+  background-color:#151719;
+  background-image:repeating-linear-gradient(135deg,#ffffff02 0px,#ffffff02 1px,transparent 1px,transparent 6px);
+  border-right:1px solid #34383b;
+}
+.activity-rail button{color:#81888a}
+.activity-rail button:hover{background:#292e31;color:#dddeda}
+.activity-rail button.selected{
+  background:#292c2d;color:var(--carbon-gold);
+  border-left-color:var(--carbon-gold);
+}
+.studio-sidebar{background:#1b1e20;border-right:1px solid #35393b}
+.sidebar-head{color:#b3b6b3;border-bottom:1px solid #282c2e;background:#1a1d1f}
+.sidebar-inner{scrollbar-color:#454a4b #1b1e20}
+.sidebar-inner .subpanel{
+  background:#222629;border:1px solid #393e41;border-radius:7px;
+  box-shadow:inset 0 1px 0 #ffffff04;
+}
+.sidebar-inner .subpanel .subpanel{background:#1c2022;border-color:#34393b}
+.sidebar-inner .subpanel h3{color:#e7e3da;font-weight:650}
+.sidebar-inner label{color:#b1b7b3}
+.sidebar-inner .note{color:#939a98}
+.sidebar-inner input[type=text],
+.sidebar-inner input[type=number],
+.sidebar-inner select,
+.sidebar-inner input[type=color]{
+  background:#191c1e;color:#e2e2dd;border:1px solid #44494b;
+  border-radius:5px;
+}
+.sidebar-inner input:hover,.sidebar-inner select:hover{border-color:#666865}
+.sidebar-inner input:focus,.sidebar-inner select:focus,
+.sidebar-inner textarea:focus{border-color:var(--carbon-gold);outline:1px solid #b6925470;outline-offset:0}
+.sidebar-inner button{
+  background:#333739;color:#dfdfd8;border-color:#494d4e;
+  border-radius:5px;
+}
+.sidebar-inner button:hover{background:#414648;border-color:#646766}
+.sidebar-inner input[type=range],.sidebar-inner input[type=checkbox]{accent-color:var(--carbon-gold)}
+.sidebar-inner input[type=range]:focus-visible,.sidebar-inner input[type=checkbox]:focus-visible{outline-color:var(--carbon-gold)}
+.workspace{background:#151719}
+.workspace-pane{background:#171a1c}
+.editor-tabs{background:#202326;border-bottom:1px solid #383d3e}
+.editor-tab{
+  background:#272b2e;color:#a8afad;
+  border-right:1px solid #353a3c;
+}
+.editor-tab:hover{background:#323638;color:#e2e0db}
+.editor-tab.active{
+  background:#171a1c;color:#f0ede7;
+  border-top-color:var(--carbon-gold);
+}
+.editor-tabs .tiny-action{color:#b5b5af}
+.editor-tabs .tiny-action:hover{background:#3c4142;color:#f7e7c3}
+.inline-zoom #zoomValue{
+  background:#191c1e;color:#e1be81;border-color:#505553;
+}
+.inline-zoom .zoom-unit{color:#aaaea9}
+.editor-tabs #zoomFitBtn{color:#ddba7c;border-color:#5d5545}
+.studio-previewbody{background:#151719}
+.studio-previewbody .panel{background:transparent}
+.studio-previewbody .canvas-wrap{
+  background-color:#141618;
+  background-image:linear-gradient(45deg,#202426 25%,transparent 25%),
+    linear-gradient(-45deg,#202426 25%,transparent 25%),
+    linear-gradient(45deg,transparent 75%,#202426 75%),
+    linear-gradient(-45deg,transparent 75%,#202426 75%);
+  border-color:#363a3b;
+}
+.studio-previewbody .canvas-wrap canvas{border:1px solid #41474a}
+#consoleTextPane{background:#151719}
+.terminal-toolbar{
+  background:#202427;color:#afb4b0;border-bottom:1px solid #373b3c;
+}
+.terminal-toolbar .term-name{color:#d7b57a}
+.terminal-toolbar select{background:#2a2d2e;border:1px solid #494e4d;color:#e5e4df}
+.terminal-toolbar input[type=range]{accent-color:var(--carbon-gold)}
+.terminal-scroll{background:#121416;scrollbar-color:#45494a #151719}
+/* No alterar los colores del contenido del terminal o de la imagen generada. */
+#consoleTextPreview{background:#000;color:#ddd}
+#consoleEmpty{color:#9ca09a}
+.console-pane-help{background:#1a1d1f;color:#a1a49f;border-top-color:#323637}
+.code-pane{border-top:1px solid #373b3e}
+.code-body #resultSection,
+.code-body .export-head,.code-body .actions{background:#171a1c}
+.code-body .export-head .status{color:#b2b5ae}
+.code-body .export-head .status.pending{color:#dec084}
+.code-body .export-head .status.ready{color:#a5d3ad}
+.code-body .actions button{
+  background:#2e3234;color:#deded9;border:1px solid #4a5050;
+}
+.code-body .actions button:not(:disabled):hover{
+  background:#3b4041;color:#f6e8c9;border-color:#827153;
+}
+.code-editor{border-top:1px solid #353a3b;background:#171a1c}
+.code-gutter{background:#1c1f21;color:#707777;border-right:1px solid #34393a}
+.code-editor textarea{
+  background:#171a1c!important;color:#e0e0db!important;
+  caret-color:#e2b66d;
+}
+.code-editor textarea::selection{background:#7b603c77}
+.code-body #copyStatus{background:#202426;color:#9b9f9c;border-top-color:#393d3e}
+.studio-statusbar{
+  background:linear-gradient(180deg,#25292b,#1b1f20);
+  color:#d4d0c5;border-top:1px solid #b8935755;
+}
+.studio-statusbar .status-group:first-child span:first-child{color:#e0bc7d}
+#inputDropzone{
+  background:#242729;border:1px dashed #67645e;color:#bdc0ba;
+}
+#inputDropzone.drag{background:#34332b;border-color:var(--carbon-gold)}
+#inputDropzone strong{color:#ebd5af}
+.studio-info{border-top-color:#424443;color:#9ba09b}
+.studio-info summary{color:#c5b18d}
+.studio-info summary:before{color:var(--carbon-gold)}
+.studio-mini-stats{color:#999e99}
+.studio-mini-stats b{color:#e0ddd6}
+.studio-statusbar,#consoleTextPane,.studio-sidebar,.studio-titlebar{color-scheme:dark}
+:focus-visible{outline:2px solid #d4aa6399;outline-offset:2px}
+@media(max-width:660px){
+ .studio-sidebar{box-shadow:5px 2px 20px #000b}
+ .studio-statusbar{font-size:10px}
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>PseudoLib · Generador de imágenes</h1>
+  <p>Convierte una imagen a código <code>.psc</code> usando <code>canvas_getPixelRGB</code> / <code>canvas_getPixelRGB_8</code>, con cuantización a 8 colores RGB binarios y luminancia.</p>
+</header>
+<main class="wrap">
+  <section class="panel" id="previewSection">
+    <div class="topbar">
+      <div class="workspace-header"><h2 style="margin:0">Vista previa</h2><span class="pill-note">Se actualiza al editar · No genera código</span></div>
+      <label>Seleccionar imagen <input id="fileInput" type="file" accept="image/*"></label>
+    </div>
+    <div class="previews">
+      <div class="cvbox"><h3>Imagen original</h3><div class="canvas-wrap"><canvas id="origCanvas"></canvas></div><div class="note" id="originalSize" style="margin-top:8px">Sube una imagen para comenzar.</div></div>
+      <div class="cvbox"><h3>Resultado simulado · Editable</h3><div class="canvas-wrap" id="quantWrap"><canvas id="quantCanvas" title="Dibuja sobre los píxeles de la imagen simulada"></canvas></div><div class="note" style="margin-top:8px">Pincel, borrador y cuentagotas sobre la imagen. El resultado que ves se utiliza al generar el PSC.</div></div>
+    </div>
+    <div class="stats">
+      <div class="stat"><b id="statSize">—</b><span>Tamaño final en consola</span></div>
+      <div class="stat"><b id="statPixels">0</b><span>Píxeles visibles</span></div>
+      <div class="stat"><b id="statRuns">0</b><span>Franjas horizontales</span></div>
+    </div>
+    <div class="note" id="statConsole" style="margin-top:8px">Matriz lógica: —</div>
+  </section>
+
+  <section class="panel" id="settingsSection">
+    <div class="topbar"><h2 style="margin:0">Configuración y edición</h2><span class="note">Cualquier ajuste cambia solo la simulación en tiempo real.</span></div>
+    <div class="config-grid">
+      <div class="subpanel">
+        <h3>Tamaño y conversión</h3>
+        <div class="row2">
+          <label>Ancho visual de imagen <input id="targetW" type="number" min="1" step="1" value="150"></label>
+          <label>Alto visual de imagen <input id="targetH" type="number" min="1" step="1" value="150"></label>
+        </div>
+        <div class="checks"><label><input id="lockAspect" type="checkbox" checked> Conservar proporción original</label></div>
+        <label>Proporción física del carácter de PSeInt (ancho / alto)
+          <input id="consoleCellAspect" type="number" min="0.2" max="1.5" step="0.01" value="0.428571">
+        </label>
+        <div class="note">Medida de tu captura: aprox. 3 px de ancho × 7 px de alto por carácter (0.429). Se generan unas 2.33 columnas por cada píxel de ancho visual. Un paquete RGB8 sigue ocupando exactamente 3 columnas; no se modifica el código de colores.</div>
+        <div class="actions"><button type="button" id="autoSizeBtn" class="secondary">Ajustar automáticamente (150 × 150 máx.)</button></div>
+        <div class="note">El tamaño indicado significa columnas finales de consola, salvo si eliges expresamente «Ancho lógico» en el clásico. Cada paquete RGB8 ocupa exactamente 3 columnas; en los modos de detalle empaqueta tres píxeles distintos y NO triplica el ancho. En ancho lógico el alto se corrige también cuando está activada «Conservar proporción». Resoluciones grandes pueden desbordar la consola de PSeInt.</div>
+        <label>Modo RGB
+          <select id="pixelMode">
+            <option value="8b" selected>8b — Mezcla de tres colores</option>
+            <option value="3b">3b — Un color por píxel</option>
+            </select>
+        </label>
+        <label>Representación 8b
+          <select id="eightStrategy">
+            <option value="spatial">Refinada v1 — detalle y sombras original</option>
+            <option value="spatial2">Refinada v2 — reducción de ruido sin perder relieve</option>
+            <option value="spatial3">Refinada v3 — limpieza y detalle adaptable</option>
+            <option value="spatial4" selected>Refinada v4 — v3 + eliminación real de ruido exterior</option>
+            <option value="dither">Tramado avanzado (v22) — algoritmos seleccionables</option>
+            <option value="blend">Clásico v9: mezcla de tres celdas por píxel (sin cambios)</option>
+          </select>
+        </label>
+        <label>Difusión adicional del color
+          <input id="ditherAmount" type="range" min="0" max="100" step="5" value="30">
+          <span class="note" id="ditherAmountValue">30 %</span>
+        </label>
+
+        <div class="subpanel" id="refinedV2Options" style="display:none">
+          <h3>Refinada v2 / v3 · Limpieza selectiva</h3>
+          <label>Reducción de ruido cromático
+            <input id="spatial2Strength" type="range" min="0" max="100" step="5" value="100">
+            <span class="note" id="spatial2StrengthValue">100 %</span>
+          </label>
+          <div id="refinedV3DetailOptions" class="grid" style="display:none">
+            <label>Detalle y nitidez (Refinada v3 / v4)
+              <input id="spatial3Detail" type="range" min="0" max="100" step="5" value="100">
+              <span class="note" id="spatial3DetailValue">100 %</span>
+            </label>
+            <div class="note">En bordes y elementos pequeños reduce el tramado y acerca los umbrales al 50 %, como el clásico v9. En áreas suaves mantiene los degradados de v2. Al 0 % la v3 es idéntica a v2.</div>
+          </div>
+          <div id="refinedV4Options" class="grid" style="display:none">
+            <label>Limpieza exterior (solo Refinada v4)
+              <input id="spatial4Isolated" type="range" min="0" max="100" step="5" value="100">
+              <span class="note" id="spatial4IsolatedValue">100 %</span>
+            </label>
+            <div id="exteriorCleanupStats" class="note" style="font-weight:600;color:#98e2b6" aria-live="polite">Eliminados: 0 píxeles en 0 grupos · fondo null · tamaño máximo 28 px</div>
+            <div class="note">Detecta también el fondo vacío (null) generado al omitir negro. Elimina componentes exteriores de pocos píxeles, respetando la figura principal y las zonas internas. A mayor intensidad admite grupos de mayor tamaño.</div>
+          </div>
+          <div class="note">Suaviza variaciones de color entre píxeles parecidos, sin mezclar contornos ni promediar las luces y sombras. Al 0 % de limpieza, la v2 es idéntica a Refinada v1. Se procesa solo en el HTML.</div>
+        </div>
+
+        <div class="subpanel" id="ditherOptions">
+          <h3>Tramado avanzado · v22</h3>
+          <label>Método
+            <select id="ditherMethod">
+              <option value="hybrid" selected>Híbrido recomendado — Floyd + Bayer 2×2 en áreas planas</option>
+              <option value="atkinson">Atkinson — bordes y contraste</option>
+              <option value="floyd">Floyd–Steinberg — degradados orgánicos</option>
+              <option value="jjn">Jarvis–Judice–Ninke — transiciones amplias</option>
+              <option value="stucki">Stucki — suavidad y detalle equilibrados</option>
+              <option value="bayer">Bayer 8×8 — trama ordenada</option>
+              <option value="halftone">Halftone — puntos de semitono</option>
+            </select>
+          </label>
+          <label>Intensidad del tramado
+            <input id="ditherStrength" type="range" min="0" max="100" step="5" value="80">
+            <span class="note" id="ditherStrengthValue">80 %</span>
+          </label>
+          <div class="checks"><label><input id="ditherEdgeProtect" type="checkbox" checked> Evitar propagar error a través de contornos fuertes</label></div>
+          <div class="note">Solo afecta a «Tramado avanzado». El modo híbrido aplica Floyd–Steinberg en detalle y Bayer 2×2 en zonas planas para reducir ruido. Los cálculos ocurren en HTML, antes de generar PSC. La protección de bordes modifica el reparto del error; desactívala para usar los pesos clásicos sin esa restricción.</div>
+        </div>
+        <div class="checks"><label><input id="smoothDownsample" type="checkbox"> Suavizar el remuestreo antes de cuantizar</label></div>
+        <div class="note">RGB8 clásico: cada píxel lógico ocupa 3 columnas. RGB8 detallado: 3 píxeles lógicos distintos se empaquetan en 1 llamada, sin aumentar el ancho de consola. Ambos métodos usan coordenadas de consola reales; las franjas se validan para impedir superposiciones.</div>
+        <label>Repetición horizontal <input id="repeatX" type="number" min="1" max="6" value="1"></label>
+        <label>Anchura en 8b clásico
+          <select id="blendWidthMode">
+            <option value="final" selected>Ancho final de consola (actual)</option>
+            <option value="logical">Ancho lógico (3× columnas; ajusta el alto proporcionalmente)</option>
+          </select>
+        </label>
+        <label>Zoom de la vista activa (0.1×–64×) <input id="zoomPreview" type="number" min="0.1" max="64" value="4" step="0.1" inputmode="decimal"></label>
+      </div>
+      <div class="subpanel">
+        <h3>Editor de píxeles</h3>
+        <div class="row2">
+          <label>Herramienta
+            <select id="paintTool"><option value="paint">Pincel</option><option value="erase">Borrador</option><option value="pick">Cuentagotas</option></select>
+          </label>
+          <label>Color <input id="paintColor" type="color" value="#ff00ff"></label>
+        </div>
+        <div class="row2">
+          <label>Tamaño del pincel <input id="brushSize" type="number" min="1" max="8" value="1"></label>
+          <label>Luminancia
+            <select id="paintLum"><option value="auto">Automática</option><option value="1">1 · Intensa</option><option value="0">0 · Atenuada</option></select>
+          </label>
+        </div>
+        <div class="actions"><button id="undoBtn" type="button" class="secondary">Deshacer trazo</button><button id="resetEditsBtn" type="button" class="secondary">Restaurar imagen</button></div>
+        <div class="note">Puedes pintar directamente en «Resultado simulado». Si cambias la resolución, las ediciones se recolocan proporcionalmente.</div>
+      </div>
+      <div class="subpanel">
+        <h3>Cuantización</h3>
+        <div class="note">En la representación nueva se elige entre las 16 variantes de color y luminosidad, sin obligar a grupos de tres píxeles a compartir brillo. «Refinada v1» no se modifica. «Refinada v2» atenúa fluctuaciones de color con un filtro bilateral guiado por luminancia. «Refinada v3» conserva este filtro y refuerza detalles finos al reducir el tramado en bordes. Las versiones anteriores no se modifican.</div>
+        <div class="row2">
+          <label>Umbral RGB en 3b <input id="rgbThreshold" type="range" min="0" max="255" value="105"><span class="note" id="rgbThresholdValue">105</span></label>
+          <label>Umbral luminancia <input id="lumThreshold" type="range" min="0" max="255" value="66"><span class="note" id="lumThresholdValue">66</span></label>
+        </div>
+        <div class="row2">
+          <label>Brillo global <input id="brightnessAdjust" type="range" min="50" max="180" value="135" step="5"><span class="note" id="brightnessAdjustValue">135 %</span></label>
+          <label>Gamma / luces <input id="gammaAdjust" type="range" min="50" max="180" value="115" step="5"><span class="note" id="gammaAdjustValue">1.15</span></label>
+        </div>
+        <div class="note">El umbral RGB solo afecta al modo 3b. El umbral de luminancia ahora también influye en el refinado: valores menores iluminan más; valores mayores oscurecen más. Brillo global multiplica la imagen antes de cuantizar. En Gamma, menos de 1 aclara medios tonos y más de 1 los oscurece.</div>
+        <div class="row2">
+          <label>Umbral alfa <input id="alphaThreshold" type="range" min="0" max="255" value="42"><span class="note" id="alphaThresholdValue">42</span></label>
+          <label>Umbral negro <input id="blackThreshold" type="range" min="0" max="255" value="9"><span class="note" id="blackThresholdValue">9</span></label>
+        </div>
+        <div class="checks"><label><input id="trimTransparent" type="checkbox" checked> Recortar bordes sin contenido</label><label><input id="omitNearBlack" type="checkbox" checked> Omitir píxeles casi negros</label></div>
+      </div>
+      <div class="subpanel">
+        <h3>Salida PSeInt</h3>
+        <label>Nombre de la función <input id="fnName" type="text" value="PseudoLibLogo"></label>
+        <div class="checks">
+          <label><input id="addMain" type="checkbox" checked> Agregar <code>Proceso Principal</code></label>
+          <label><input id="addFinalWait" type="checkbox" checked> Esperar tecla al finalizar</label>
+          <label><input id="optAggressive" type="checkbox" checked> Compilar filas completas en JavaScript (1 escritura/fila)</label>
+        </div>
+        <div class="note">Con la compilación por filas, JavaScript inserta el color ANSI y cada carácter <code>¶</code> en la cadena final. PSeInt solo posiciona el cursor y escribe una vez por fila ocupada; no concatena píxeles. La casilla desactivada mantiene el exportador anterior para comparar.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" id="resultSection">
+    <div class="export-head">
+      <div><h2 style="margin-bottom:5px">Código generado</h2><div class="status pending" id="generationStatus">Pendiente: ajusta la simulación y pulsa «▶ Generar PSC» cuando te convenza.</div></div>
+      <button id="generateBtn" class="ok" type="button">▶ Generar PSC</button>
+    </div>
+    <div class="actions" style="margin-bottom:12px">
+      <button id="downloadBtn" class="secondary" type="button" disabled>Descargar .psc</button>
+      <button id="txtBtn" class="secondary" type="button" disabled>Descargar .txt</button>
+      <button id="copyBtn" class="secondary" type="button" disabled>Copiar código</button>
+    </div>
+    <div class="stats" style="margin-bottom:12px">
+      <div class="stat"><b id="statRGBCalls">0</b><span>3b: celdas de salida</span></div>
+      <div class="stat"><b id="statRGB8Calls">0</b><span>8b: paquetes de mezcla</span></div>
+      <div class="stat"><b id="statUnique">0</b><span>Variantes precompiladas</span></div>
+    </div>
+    <textarea id="output" spellcheck="false" aria-label="Código PSeInt generado" placeholder="El código aparecerá al pulsar Generar resultado."></textarea>
+    <div id="copyStatus" class="small" role="status" aria-live="polite">Puedes editar el texto después de generarlo, descargarlo o copiarlo.</div>
+  </section>
+</main>
+<script>
+const runtime3b = "// PseudoLib: dependencias transitivas para pixel RGB 3b\nFuncion length <- native_string_length(text)\n\tDefinir length Como Entero;\n\tlength = Longitud(text);\nFinFuncion\n\nFuncion result_string <- native_number_toString(num)\n\tDefinir result_string Como Texto;\n\tresult_string = ConvertirATexto(num);\nFinFuncion\n\nFuncion strSubs <- native_string_substring(result_string, start, end)\n\tDefinir strSubs Como Texto;\n\tstrSubs = subcadena(result_string, start, end);\nFinFuncion\n\nFuncion num <- native_number_parseNum(text)\n\tDefinir num Como Numero;\n\tnum = ConvertirANumero(text);\nFinFuncion\n\nFuncion native_println(text)\n\tEscribir text;\nFinFuncion\n\nFuncion native_print(text)\n\tEscribir text Sin Saltar;\nFinFuncion\n\nFuncion native_clearConsole\n\tLimpiar Pantalla;\nFinFuncion\n\nFuncion num_trunc <- native_math_truncate(num)\n\tDefinir num_trunc Como Entero;\n\tnum_trunc = Trunc(num);\nFinFuncion\n\nFuncion num_module <- native_math_module(number1, number2)\n\tDefinir num_module Como Real;\n\tnum_module = number1 MOD number2;\nFinFuncion\n\nFuncion user_input_wait\n\tEsperar Tecla;\nFinFuncion\n\nFuncion result <- string_append_withSeparator(str1, str2, separator)\n\tDefinir result Como Texto;\n\tresult = str1+separator+str2+\"\";\nFinFuncion\n\nFuncion result <- string_append(str1, str2)\n\tDefinir result Como Texto;\n\tresult = string_append_withSeparator(str1, str2, \"\");\nFinFuncion\n\nFuncion strSubs <- string_substring(result_string, start, end)\n\tDefinir strSubs, str_data Como Texto;\n\tDefinir end_substring Como Entero;\n\tmessage_validateRangeInString(\"string_substring\", result_string, start, end);\n\tend_substring = math_max_int( math_minus(end, 1), 0);\n\tstr_data = native_string_substring(result_string, start, end_substring);\n\tstrSubs = if_else(number_isEquals(start, end), \"\", str_data);\nFinFuncion\n\nFuncion strSubs <- string_substring_from(result_string, start)\n\tDefinir strSubs Como Texto;\n\tDefinir end_substring Como Entero;\n\tend_substring = native_string_length(result_string);\n\tstrSubs = string_substring(result_string, start, end_substring);\nFinFuncion\n\nFuncion result_string <- char_At(text, index)\n\tDefinir result_string Como Texto;\n\tDefinir end_substring, text_length Como Entero;\n\ttext_length   = native_string_length(text);\n\tend_substring = math_min_int(math_increment(index), text_length);\n\tresult_string = string_substring(text, index, end_substring);\nFinFuncion\n\nFuncion num <- string_length(text)\n\tDefinir num Como Entero;\n\tnum = native_string_length(text);\nFinFuncion\n\nFuncion result_string <- string_insert_withReplace(text, text_insert, index)\n\tDefinir result_string Como Texto;\n\tresult_string=__private_string_insert_general(text, text_insert, index, true);\nFinFuncion\n\nFuncion result_string <- __private_string_insert_general(text, text_insert, index, isReplace)\n\tDefinir result_string, before, after Como Texto;\n\tDefinir index_after Como Entero;\n\tbefore        = string_substring(text, 0, index);\n\tindex_after   = math_sum(index, if_else(isReplace, native_string_length(text_insert), 0));\n\tafter         = string_substring_from(text, math_min_int(index_after, native_string_length(text)));\n\tresult_string = string_append_withSeparator(before, after, text_insert);\nFinFuncion\n\nFuncion result_string <- string_repeatText(text, repeats)\n\tDefinir result_string Como Texto;\n\tDefinir current_repeats, next_repeats, missing_repeats, text_length Como Entero;\n\tsi repeats < 0 Entonces\n\t\tresult_string = \"\";\n\tSiNo\n\t\tresult_string = text;\n\t\tcurrent_repeats = 1;\n\t\ttext_length = native_string_length(text);\n\t\tnext_repeats = math_sum(current_repeats, current_repeats);\n\t\tMientras next_repeats <= repeats Hacer\n\t\t\tresult_string = string_append(result_string, result_string);\n\t\t\tcurrent_repeats = next_repeats;\n\t\t\tnext_repeats = math_sum(current_repeats, current_repeats);\n\t\tFinMientras\n\t\tsi current_repeats < repeats Entonces\n\t\t\tmissing_repeats = math_minus(repeats, current_repeats);\n\t\t\tresult_string = string_append(result_string, String_subString(result_string, 0, (missing_repeats * text_length)));\n\t\tFinSi\n\tFinSi\nFinFuncion\n\nFuncion result_string <- string_trim(text)\n    Definir result_string Como Texto;\n\tresult_string = string_Strip(text, \" \");\nFinFuncion\n\nFuncion result_string <- string_Strip(text, strip_symbol)\n    Definir result_string Como Texto;\n    Definir start, end, length_text Como Entero;\n    length_text = native_string_length(text);\n    start = 0;\n    Mientras start < length_text & string_isEquals(char_At(text, start), strip_symbol) Hacer\n        start = math_increment(start);\n    FinMientras\n    end = length_text;\n    Mientras end > start & string_isEquals(char_At(text, math_decrement(end)), strip_symbol) Hacer\n        end = math_decrement(end);\n    FinMientras\n    result_string = string_SubString(text, start, end);\nFinFuncion\n\nFuncion limit <- __private_string_get_firewall_limit(matcher_len, max_limit)\n    Definir limit Como Entero;\n    Si matcher_len > 0 Entonces\n        limit = math_div_int(max_limit, matcher_len);\n    SiNo\n        limit = 1;\n    FinSi\nFinFuncion\n\nFuncion count <- string_countMatches_strict(text, text_matcher, start_index, matcher_len)\n    Definir count, repeats, text_len, j, current_match_len, firewall_limit Como Entero;\n    Definir current_matcher, sub_text Como Texto;\n    Definir is_match Como Logico;\n    text_len       = native_string_length(text);\n    count          = 0;\n    j              = math_max_int(start_index, 0);\n    repeats        = 1;\n    firewall_limit = __private_string_get_firewall_limit(matcher_len, 131072);\n    Mientras j < text_len & repeats > 0 Hacer\n        current_matcher   = string_repeatText(text_matcher, repeats);\n        current_match_len = native_string_length(current_matcher);\n        Si math_sum(j, current_match_len) <= text_len Entonces\n            sub_text = string_substring(text, j, math_sum(j, current_match_len));\n            is_match = string_isEquals(current_matcher, sub_text);\n        SiNo\n            is_match = false();\n        FinSi\n        Si is_match Entonces\n            count = math_sum(count, repeats);\n            j     = math_sum(j, current_match_len);\n            Si repeats < firewall_limit Entonces\n                repeats = repeats * 2;\n            FinSi\n        SiNo\n            repeats = math_div_int(repeats, 2);\n            Si repeats <= 0 Entonces\n                repeats = -1;\n            FinSi\n        FinSi\n    FinMientras\nFinFuncion\n\nFuncion boolean <- string_startsWith(text, text_match)\n\tDefinir boolean Como Logico;\n\tboolean = string_isEquals(string_substring(text, 0, native_string_length(text_match)), text_match);\nFinFuncion\n\nFuncion boolean <- string_isEquals(str1, str2)\n\tDefinir boolean Como Logico;\n\tboolean = boolean_isEquals_general(str1, str2);\nFinFuncion\n\nFuncion zero_count <- __private_number_countLeadingZeros(str_unsigned, str_length)\n\tDefinir zero_count Como Entero;\n\tzero_count = math_min_int(string_countMatches_strict(str_unsigned, \"0\", 0, 1), math_decrement(str_length));\nFinFuncion\n\nFuncion fits <- __private_number_tenDigitsFitInt32(str_ten_digits, is_negative)\n\tDefinir fits Como Logico;\n\tDefinir limit_32b Como Real;\n\tlimit_32b = 2147483647;\n\tSi is_negative Entonces\n\t\tlimit_32b = 2147483648;\n\tFinSi\n\tfits = (limit_32b >= native_number_parseNum(str_ten_digits));\nFinFuncion\n\nFuncion type_number <- string_isNumber_dispatcher(str_num)\n\tDefinir is_valid, is_negative Como Logico;\n\tDefinir index, str_length, point_count, zero_count, digit_count, type_number Como Entero;\n\tDefinir str_char, str_unsigned Como Texto;\n\ttype_number  = -1;\n\tstr_num      = string_trim(str_num);\n\tis_negative  = string_startsWith(str_num, \"-\");\n\tstr_unsigned = str_num;\n\tSi is_negative Entonces\n\t\tstr_unsigned = string_substring_from(str_num, 1);\n\tFinSi\n\tstr_length  = native_string_length(str_unsigned);\n\tis_valid    = (str_length > 0);\n\tpoint_count = 0;\n\tindex       = 0;\n\tMientras is_valid & (index < str_length) Hacer\n\t\tstr_char = char_At(str_unsigned, index);\n\t\tSi str_char == \".\" Entonces\n\t\t\tpoint_count = math_increment(point_count);\n\t\t\tis_valid    = (point_count <= 1) & (index > 0) & (index < math_decrement(str_length));\n\t\tSiNo\n\t\t\tis_valid    = ascii_IsNumberSymbols(str_char);\n\t\tFinSi\n\t\tindex = math_increment(index);\n\tFinMientras\n\tSi is_valid Entonces\n\t\ttype_number = 0;\n\t\tSi point_count < 1 Entonces\n\t\t\tzero_count = 0;\n\t\t\tSi char_At(str_unsigned, 0) == \"0\" Entonces\n\t\t\t\tzero_count = __private_number_countLeadingZeros(str_unsigned, str_length);\n\t\t\tFinSi\n\t\t\tdigit_count = math_minus(str_length, zero_count);\n\t\t\tSi digit_count < 10 Entonces\n\t\t\t\ttype_number = 1;\n\t\t\tFinSi\n\t\t\tSi digit_count == 10 Entonces\n\t\t\t\tSi __private_number_tenDigitsFitInt32(string_substring_from(str_unsigned, zero_count), is_negative) Entonces\n\t\t\t\t\ttype_number = 1;\n\t\t\t\tFinSi\n\t\t\tFinSi\n\t\tFinSi\n\tFinSi\nFinFuncion\n\nFuncion isNumber <- string_isNumber_int(str_num)\n\tDefinir isNumber Como Logico;\n\tisNumber = (string_isNumber_dispatcher(str_num) == 1);\nFinFuncion\n\nFuncion result_string <- string_NULL\n\tDefinir result_string Como Texto;\n\tresult_string = \"\u0015\";\nFinFuncion\n\nFuncion println_array(array, index_array)\n\tDefinir i Como Entero;\n\tpara i = 0 Hasta math_decrement(index_array) Hacer\n\t\tnative_println(array[i]);\n\tFinPara\nFinFuncion\n\nFuncion println_array_color(array, index_array, color)\n\tprintln_array_decorator(array, index_array, color);\nFinFuncion\n\nFuncion println_array_decorator(array, index_array, decorator)\n\tDefinir i Como Entero;\n\tpara i = 0 Hasta math_decrement(index_array) Hacer\n\t\tarray[i] = string_append(decorator, array[i]);\n\tFinPara\n\tprintln_array(array, index_array);\nFinFuncion\n\nFuncion clearConsole\n\tnative_clearConsole();\nFinFuncion\n\nFuncion log_ERROR(message)\n\t__private_general_log(message, \"ERROR: \", COLOR_RED());\nFinFuncion\n\nFuncion __private_general_log(message, start_tag, SELECTED_COLOR)\n\tmessage = string_append(start_tag, message);\n\tnative_println(string_append(SELECTED_COLOR, message));\nFinFuncion\n\nFuncion boolean <- number_isEquals(num, num2)\n\tDefinir boolean Como Logico;\n\tboolean = boolean_isEquals_general(num, num2);\nFinFuncion\n\nFuncion result_string <- integer_ToString(num)\n\tDefinir result_string Como Texto;\n\tresult_string = native_number_toString(num);\n\tSi !string_isNumber_int(result_string) Entonces\n\t\texection_Error(string_append(\"typing error integer: \", result_string));\n\tFinSi\nFinFuncion\n\nFuncion result <- math_max_int(value, limit)\n\tDefinir result Como Entero;\n\tresult = __private_math_choose(value, limit, true());\nFinFuncion\n\nFuncion result <- math_min_int(value, limit)\n\tDefinir result Como Entero;\n\tresult = __private_math_choose(value, limit, false());\nFinFuncion\n\nFuncion result <- __private_math_choose(value, limit, isMax)\n\tDefinir result Como Entero;\n\tDefinir operation_flag Como Logico;\n\toperation_flag = (value > limit) & isMax;\n\toperation_flag = operation_flag | ((value < limit) & !isMax);\n\tSi operation_flag Entonces\n\t\tresult = value;\n\tSiNo\n\t\tresult = limit;\n\tFinSi\nFinFuncion\n\nFuncion num_div <- math_div_int(dividend, divisor)\n\tDefinir num_div Como Entero;\n\tnum_div = native_math_truncate(math_div(dividend, divisor));\nFinFuncion\n\nFuncion num_div <- math_div(dividend, divisor)\n\tDefinir num_div Como Real;\n\tSi divisor == 0 Entonces\n\t\tdivisor = number_NULL();\n\t\terror_message_function(\"math_div(dividend, divisor)\",\"divisor = 0\");\n\tFinSi\n\tnum_div = dividend / divisor;\nFinFuncion\n\nFuncion numInc <- math_increment(num)\n\tDefinir numInc Como Numero;\n\tnumInc = num + 1;\nFinFuncion\n\nFuncion numInc <- math_sum(num, value)\n\tDefinir numInc Como Numero;\n\tnumInc = num + value;\nFinFuncion\n\nFuncion numDec <- math_decrement(num)\n\tDefinir numDec Como Numero;\n\tnumDec = num - 1;\nFinFuncion\n\nFuncion numDec <- math_minus(num, value)\n\tDefinir numDec Como Numero;\n\tnumDec = num - value;\nFinFuncion\n\nFuncion boolean <- false\n\tDefinir boolean Como Logico;\n\tboolean = Falso;\nFinFuncion\n\nFuncion boolean <- true\n\tDefinir boolean Como Logico;\n\tboolean = Verdadero;\nFinFuncion\n\nFuncion boolean <- boolean_isEquals_general(value1, value2)\n\tDefinir boolean Como Logico;\n\tboolean = (value1 == value2);\nFinFuncion\n\nFuncion result <- if_else(condition, result, result2)\n\tSi !(condition) Entonces\n\t\tresult = result2;\n\tFinSi\t\nFinFuncion\n\nFuncion error_message_function(method, message)\n\terror_message(string_append_withSeparator(method, message, \"//\"));\nFinFuncion\n\nFuncion error_message(message)\n\tnative_println(symbol_Escape() + \"31m[ERROR] // \" + message + \".\");\nFinFuncion\n\nFuncion message_validateRangeInString(Function_name, result_string, start, end)\n    Definir str_length Como Entero;\n    str_length = string_Length(result_string);\n    message_validateRangeInValue(Function_name, start, 0, str_length);\n    message_validateRangeInValue(Function_name, end, 0, str_length);\n\tsi (start > end) Entonces\n\t\terror_message_function(Function_name, \"Index Error: Start > End\");\n\tFinSi\nFinFuncion\n\nFuncion message_validateRangeInValue(Function_name, value, min_val, max_val)\n\tsi (min_val > max_val) Entonces\n\t\terror_message_function(Function_name, \"Config Error: Min > Max\");\n\tFinSi\n    Si !condition_number_IsInRange(value, min_val, max_val) Entonces\n        Definir error_msg Como Texto;\n        error_msg = string_append(\"Value out of range: \", integer_toString(value));\n        error_msg = string_append(error_msg, string_append(\" [Limit: \", integer_toString(min_val)));\n        error_msg = string_append(error_msg, string_append(\" - \", integer_toString(max_val)));\n        error_msg = string_append(error_msg, \"]\");\n        error_message_function(Function_name, error_msg);\n    FinSi\nFinFuncion\n\nFuncion IsInRange <- condition_number_IsInRange(value, min_val, max_val)\n    Definir IsInRange Como Logico;\n    IsInRange = value >= min_val & value <= max_val;\nFinFuncion\n\nFuncion exection_Error(message_Error)\n\tDefinir error_int Como Entero;\n\tlog_ERROR(message_Error);\n\terror_int = string_NULL();\nFinFuncion\n\nFuncion color <- COLOR_RED\n\tDefinir color Como Texto;\n\tcolor =  COLOR_byIndex(1);\nFinFuncion\n\nFuncion color <- COLOR_byIndex(index)\n\tDefinir color Como Texto;\n\tSi index < 0 Entonces \n\t\tindex = 0;\n\tFinSi\n\tsi (index > 7) Entonces\n\t\tindex = native_math_module(index, 8);\n\tFinSi\n\tindex = math_sum(index, 30);\n\tcolor = command_graphicText(index);\nFinFuncion\n\nFuncion color <- COLOR_STYLE_BOLD\n\tDefinir color Como Texto;\n\tcolor = command_graphicText(1);\nFinFuncion\n\nFuncion color <- COLOR_STYLE_PLAIN\n\tDefinir color Como Texto;\n\tcolor = command_graphicText(0);\nFinFuncion\n\nFuncion result_string <- symbol_Escape\n\tDefinir result_string Como Texto;\n\tresult_string = \"\u001b[\";\nFinFuncion\n\nFuncion Num <- number_NULL\n\tDefinir Num Como Entero;\n\tNum = -1;\nFinFuncion\n\nFuncion canvas_xy <- canvas_new_withPixel(CWx, CWy, pixel_background)\n\tDefinir canvas_xy, canvas_x Como Texto;\n\tcanvas_x  = string_repeatText(pixel_background, CWx);\n\tcanvas_xy = string_repeatText(canvas_x, CWy);\nFinFuncion\n\nFuncion canvas_display(canvas, CWx, CWy)\n\tcanvas_display_monoColor(canvas, CWx, CWy, \"\");\nFinFuncion\n\nFuncion canvas_display_monoColor(canvas, CWx, CWy, color)\n\tDefinir i, slice_start, slice_end, norm_CWy Como Entero;\n\tDefinir canvas_array, DrawX Como Texto;\n\tSi CWy > 0 Entonces\n\t\tDimension canvas_array[CWy];\n\t\tnorm_CWy = math_decrement(CWy);\n\t\tpara i=0 Hasta norm_CWy con paso 1 Hacer\n\t\t\tslice_start = canvas_calculate_index(0, i, CWx);\n\t\t\tslice_end \t= canvas_calculate_index(0, math_increment(i), CWx);\n\t\t\tDrawX\t\t= string_substring(canvas, slice_start, slice_end);\n\t\t\tcanvas_array[i] = DrawX;\n\t\tFinPara\t\n\t\tprintln_array_color(canvas_array, CWy, color);\n\tSiNo\n\t\terror_message_function(\"canvas_display_monoColor()\", \"error dimension CWy < 1\");\n\tFinSi\nFinFuncion\n\nFuncion index_canvas <- canvas_calculate_index(x0, y0, CWx)\n\tDefinir index_canvas Como Entero;\n\tindex_canvas= math_sum(x0, (y0*CWx));\nFinFuncion\n\nFuncion canvas_point <- canvas_DrawPoint(canvas, CWx, CWy, x0, y0)\n\tDefinir canvas_point Como Texto;\n\tcanvas_point = canvas_DrawPoint_withPixel(canvas, CWx, CWy, x0, y0, pixel_plain());\nFinFuncion\n\nFuncion canvas_point <- canvas_DrawPoint_withPixel(canvas, CWx, CWy, x0, y0, pixel_symb)\n\tDefinir canvas_point Como Texto;\n\tDefinir post_pixel Como Entero;\n\tcanvas_point = canvas;\n\tsi x0 < CWx & y0 < CWy & x0 >= 0 & y0 >= 0 Entonces\n\t\tpost_pixel = canvas_calculate_index(x0, y0, CWx);//x+(y*cX)=12+(1*40) = 52\n\t\tcanvas_point = string_insert_withReplace(canvas_point, pixel_symb, post_pixel);\n\tFinSi\nFinFuncion\n\nFuncion pixel <- pixel_plain\n\tDefinir pixel Como Texto;\n\tpixel = get_pixel_withIndex(1);\nFinFuncion\n\nFuncion pixel <- get_pixel_withIndex(index)\n\tDefinir pixel Como Texto;\n\tSegun index Hacer\n\t\tcaso 0:\n\t\t\tpixel = \"\u00b7\";\n\t\tcaso 1:\n\t\t\tpixel = \"\u00a4\";//*\n\t\tcaso 2: \n\t\t\tpixel = \"\u00f8\";\n\t\tDe Otro Modo:\n\t\t\tpixel = \"\u00d8\";\n\tFinSegun\nFinFuncion\n\nFuncion result_pixel <- canvas_getPixelRGB(b1, b2, b3, lum)\n\tDefinir result_pixel Como Texto;\n\tDefinir weight_b2, weight_b3, idx Como Entero;\n\tweight_b2 = b2 * 2;\n\tweight_b3 = b3 * 4;\n\tidx = math_sum(math_sum(weight_b2, weight_b3),  b1);\n\tSi lum > 0 Entonces\n\t\tresult_pixel = COLOR_STYLE_BOLD();\n\tSiNo\n\t\tresult_pixel = COLOR_STYLE_PLAIN();\n\tFinSi\n\tresult_pixel = string_append(result_pixel, COLOR_byIndex[idx]);\n\tresult_pixel = string_append(result_pixel, \"\u00b6\");\nFinFuncion\n\nFuncion isType <- ascii_IsNumberSymbols(char)\n\tDefinir isType Como Logico;\n\tisType = ascii_isInRangue(char, '0', '9');//48-57\nFinFuncion\n\nFuncion iSinRangue <- ascii_isInRangue(char, char_start, char_end)\n\tDefinir iSinRangue Como Logico;\n\tiSinRangue = (char_start <= char & char <= char_end);\nFinFuncion\n\nFuncion color_asc <- command_graphicText(number_int)\n\tDefinir color_asc Como Texto;\n\tcolor_asc = command_esc(integer_toString(number_int), \"m\");\nFinFuncion\n\nFuncion esc <- command_esc(middle_command, end_command)\n    Definir esc Como Texto;\n    esc = string_append(string_append(symbol_Escape(), middle_command), end_command);\nFinFuncion\n\nFuncion console_setCursor(pos_x, pos_y)\n    Definir command_exe Como Texto;\n\tDefinir pos_xNorm, pos_yNorm Como Entero;\n\tpos_xNorm   = math_increment(math_max_int(pos_x, 0));\n\tpos_yNorm   = math_increment(math_max_int(pos_Y, 0));\n    command_exe = string_append(integer_toString(pos_xNorm), string_append(\";\", integer_toString(pos_yNorm)));\n    native_print(command_esc(command_exe, \"H\"));\nFinFuncion";
+const runtime8b = "// PseudoLib: dependencias transitivas para pixel RGB _8\nFuncion length <- native_string_length(text)\n\tDefinir length Como Entero;\n\tlength = Longitud(text);\nFinFuncion\n\nFuncion result_string <- native_number_toString(num)\n\tDefinir result_string Como Texto;\n\tresult_string = ConvertirATexto(num);\nFinFuncion\n\nFuncion strSubs <- native_string_substring(result_string, start, end)\n\tDefinir strSubs Como Texto;\n\tstrSubs = subcadena(result_string, start, end);\nFinFuncion\n\nFuncion num <- native_number_parseNum(text)\n\tDefinir num Como Numero;\n\tnum = ConvertirANumero(text);\nFinFuncion\n\nFuncion native_println(text)\n\tEscribir text;\nFinFuncion\n\nFuncion native_print(text)\n\tEscribir text Sin Saltar;\nFinFuncion\n\nFuncion native_clearConsole\n\tLimpiar Pantalla;\nFinFuncion\n\nFuncion num_trunc <- native_math_truncate(num)\n\tDefinir num_trunc Como Entero;\n\tnum_trunc = Trunc(num);\nFinFuncion\n\nFuncion num_module <- native_math_module(number1, number2)\n\tDefinir num_module Como Real;\n\tnum_module = number1 MOD number2;\nFinFuncion\n\nFuncion user_input_wait\n\tEsperar Tecla;\nFinFuncion\n\nFuncion result <- string_append_withSeparator(str1, str2, separator)\n\tDefinir result Como Texto;\n\tresult = str1+separator+str2+\"\";\nFinFuncion\n\nFuncion result <- string_append(str1, str2)\n\tDefinir result Como Texto;\n\tresult = string_append_withSeparator(str1, str2, \"\");\nFinFuncion\n\nFuncion strSubs <- string_substring(result_string, start, end)\n\tDefinir strSubs, str_data Como Texto;\n\tDefinir end_substring Como Entero;\n\tmessage_validateRangeInString(\"string_substring\", result_string, start, end);\n\tend_substring = math_max_int( math_minus(end, 1), 0);\n\tstr_data = native_string_substring(result_string, start, end_substring);\n\tstrSubs = if_else(number_isEquals(start, end), \"\", str_data);\nFinFuncion\n\nFuncion strSubs <- string_substring_from(result_string, start)\n\tDefinir strSubs Como Texto;\n\tDefinir end_substring Como Entero;\n\tend_substring = native_string_length(result_string);\n\tstrSubs = string_substring(result_string, start, end_substring);\nFinFuncion\n\nFuncion result_string <- char_At(text, index)\n\tDefinir result_string Como Texto;\n\tDefinir end_substring, text_length Como Entero;\n\ttext_length   = native_string_length(text);\n\tend_substring = math_min_int(math_increment(index), text_length);\n\tresult_string = string_substring(text, index, end_substring);\nFinFuncion\n\nFuncion result <- string_indexOf(text, text_match)// --- >\n\tDefinir result Como Entero;\n\tresult = string_indexOf_fromIndex(text, text_match, 0);\nFinFuncion\n\nFuncion index <- string_indexOf_fromIndex(text, match, start_index)\n\tDefinir index, i, match_length, end_index, value_NULL Como Entero;\n\tDefinir isMatch Como Logico;\n\tvalue_NULL   = number_NULL();\n    index        = value_NULL;\n    match_length = native_string_length(match);\n\ti            = math_max_int(start_index, 0);\n\tend_index    = math_minus(native_string_length(text), match_length);\n\tMientras end_index >= i & number_isEquals(index, value_NULL) Hacer\n\t\tisMatch = string_isEquals(match, string_substring(text, i, math_sum(i, match_length)));\n\t\tSi isMatch Entonces\n\t\t\tindex = i;\n\t\tSiNo\n\t\t\ti = math_sum(i, 1);\n\t\tFinSi\n\tFinMientras\nFinFuncion\n\nFuncion num <- string_length(text)\n\tDefinir num Como Entero;\n\tnum = native_string_length(text);\nFinFuncion\n\nFuncion result_string <- string_insert_withReplace(text, text_insert, index)\n\tDefinir result_string Como Texto;\n\tresult_string=__private_string_insert_general(text, text_insert, index, true);\nFinFuncion\n\nFuncion result_string <- __private_string_insert_general(text, text_insert, index, isReplace)\n\tDefinir result_string, before, after Como Texto;\n\tDefinir index_after Como Entero;\n\tbefore        = string_substring(text, 0, index);\n\tindex_after   = math_sum(index, if_else(isReplace, native_string_length(text_insert), 0));\n\tafter         = string_substring_from(text, math_min_int(index_after, native_string_length(text)));\n\tresult_string = string_append_withSeparator(before, after, text_insert);\nFinFuncion\n\nFuncion result_string <- string_repeatText(text, repeats)\n\tDefinir result_string Como Texto;\n\tDefinir current_repeats, next_repeats, missing_repeats, text_length Como Entero;\n\tsi repeats < 0 Entonces\n\t\tresult_string = \"\";\n\tSiNo\n\t\tresult_string = text;\n\t\tcurrent_repeats = 1;\n\t\ttext_length = native_string_length(text);\n\t\tnext_repeats = math_sum(current_repeats, current_repeats);\n\t\tMientras next_repeats <= repeats Hacer\n\t\t\tresult_string = string_append(result_string, result_string);\n\t\t\tcurrent_repeats = next_repeats;\n\t\t\tnext_repeats = math_sum(current_repeats, current_repeats);\n\t\tFinMientras\n\t\tsi current_repeats < repeats Entonces\n\t\t\tmissing_repeats = math_minus(repeats, current_repeats);\n\t\t\tresult_string = string_append(result_string, String_subString(result_string, 0, (missing_repeats * text_length)));\n\t\tFinSi\n\tFinSi\nFinFuncion\n\nFuncion result_str <- string_remove(text, start, end)\n\tDefinir result_str, start_Str, end_Str Como Texto;//Hello World (5, 8)\n\tmessage_validateRangeInString(\"string_remove()\", text, start, end);\n\tstart_Str  = string_substring(text, 0, start);//Hello <-]\n\tend_Str    = string_substring_from(text, end);//.->rld  \n\tresult_str = string_append(start_Str, end_Str);//Hello+rld = Hellorld\nFinFuncion\n\nFuncion result_str <- string_remove_From(text, start)\n\tDefinir result_str Como Texto;\n\tresult_str = string_remove(text, start, native_string_length(text));\nFinFuncion\n\nFuncion result_string <- string_trim(text)\n    Definir result_string Como Texto;\n\tresult_string = string_Strip(text, \" \");\nFinFuncion\n\nFuncion result_string <- string_Strip(text, strip_symbol)\n    Definir result_string Como Texto;\n    Definir start, end, length_text Como Entero;\n    length_text = native_string_length(text);\n    start = 0;\n    Mientras start < length_text & string_isEquals(char_At(text, start), strip_symbol) Hacer\n        start = math_increment(start);\n    FinMientras\n    end = length_text;\n    Mientras end > start & string_isEquals(char_At(text, math_decrement(end)), strip_symbol) Hacer\n        end = math_decrement(end);\n    FinMientras\n    result_string = string_SubString(text, start, end);\nFinFuncion\n\nFuncion limit <- __private_string_get_firewall_limit(matcher_len, max_limit)\n    Definir limit Como Entero;\n    Si matcher_len > 0 Entonces\n        limit = math_div_int(max_limit, matcher_len);\n    SiNo\n        limit = 1;\n    FinSi\nFinFuncion\n\nFuncion count <- string_countMatches_strict(text, text_matcher, start_index, matcher_len)\n    Definir count, repeats, text_len, j, current_match_len, firewall_limit Como Entero;\n    Definir current_matcher, sub_text Como Texto;\n    Definir is_match Como Logico;\n    text_len       = native_string_length(text);\n    count          = 0;\n    j              = math_max_int(start_index, 0);\n    repeats        = 1;\n    firewall_limit = __private_string_get_firewall_limit(matcher_len, 131072);\n    Mientras j < text_len & repeats > 0 Hacer\n        current_matcher   = string_repeatText(text_matcher, repeats);\n        current_match_len = native_string_length(current_matcher);\n        Si math_sum(j, current_match_len) <= text_len Entonces\n            sub_text = string_substring(text, j, math_sum(j, current_match_len));\n            is_match = string_isEquals(current_matcher, sub_text);\n        SiNo\n            is_match = false();\n        FinSi\n        Si is_match Entonces\n            count = math_sum(count, repeats);\n            j     = math_sum(j, current_match_len);\n            Si repeats < firewall_limit Entonces\n                repeats = repeats * 2;\n            FinSi\n        SiNo\n            repeats = math_div_int(repeats, 2);\n            Si repeats <= 0 Entonces\n                repeats = -1;\n            FinSi\n        FinSi\n    FinMientras\nFinFuncion\n\nFuncion boolean <- string_startsWith(text, text_match)\n\tDefinir boolean Como Logico;\n\tboolean = string_isEquals(string_substring(text, 0, native_string_length(text_match)), text_match);\nFinFuncion\n\nFuncion boolean <- string_isEquals(str1, str2)\n\tDefinir boolean Como Logico;\n\tboolean = boolean_isEquals_general(str1, str2);\nFinFuncion\n\nFuncion zero_count <- __private_number_countLeadingZeros(str_unsigned, str_length)\n\tDefinir zero_count Como Entero;\n\tzero_count = math_min_int(string_countMatches_strict(str_unsigned, \"0\", 0, 1), math_decrement(str_length));\nFinFuncion\n\nFuncion fits <- __private_number_tenDigitsFitInt32(str_ten_digits, is_negative)\n\tDefinir fits Como Logico;\n\tDefinir limit_32b Como Real;\n\tlimit_32b = 2147483647;\n\tSi is_negative Entonces\n\t\tlimit_32b = 2147483648;\n\tFinSi\n\tfits = (limit_32b >= native_number_parseNum(str_ten_digits));\nFinFuncion\n\nFuncion type_number <- string_isNumber_dispatcher(str_num)\n\tDefinir is_valid, is_negative Como Logico;\n\tDefinir index, str_length, point_count, zero_count, digit_count, type_number Como Entero;\n\tDefinir str_char, str_unsigned Como Texto;\n\ttype_number  = -1;\n\tstr_num      = string_trim(str_num);\n\tis_negative  = string_startsWith(str_num, \"-\");\n\tstr_unsigned = str_num;\n\tSi is_negative Entonces\n\t\tstr_unsigned = string_substring_from(str_num, 1);\n\tFinSi\n\tstr_length  = native_string_length(str_unsigned);\n\tis_valid    = (str_length > 0);\n\tpoint_count = 0;\n\tindex       = 0;\n\tMientras is_valid & (index < str_length) Hacer\n\t\tstr_char = char_At(str_unsigned, index);\n\t\tSi str_char == \".\" Entonces\n\t\t\tpoint_count = math_increment(point_count);\n\t\t\tis_valid    = (point_count <= 1) & (index > 0) & (index < math_decrement(str_length));\n\t\tSiNo\n\t\t\tis_valid    = ascii_IsNumberSymbols(str_char);\n\t\tFinSi\n\t\tindex = math_increment(index);\n\tFinMientras\n\tSi is_valid Entonces\n\t\ttype_number = 0;\n\t\tSi point_count < 1 Entonces\n\t\t\tzero_count = 0;\n\t\t\tSi char_At(str_unsigned, 0) == \"0\" Entonces\n\t\t\t\tzero_count = __private_number_countLeadingZeros(str_unsigned, str_length);\n\t\t\tFinSi\n\t\t\tdigit_count = math_minus(str_length, zero_count);\n\t\t\tSi digit_count < 10 Entonces\n\t\t\t\ttype_number = 1;\n\t\t\tFinSi\n\t\t\tSi digit_count == 10 Entonces\n\t\t\t\tSi __private_number_tenDigitsFitInt32(string_substring_from(str_unsigned, zero_count), is_negative) Entonces\n\t\t\t\t\ttype_number = 1;\n\t\t\t\tFinSi\n\t\t\tFinSi\n\t\tFinSi\n\tFinSi\nFinFuncion\n\nFuncion isNumber <- string_isNumber(str_num)\n\tDefinir isNumber Como Logico;\n\tisNumber = (string_isNumber_dispatcher(str_num) >= 0);\nFinFuncion\n\nFuncion isNumber <- string_isNumber_int(str_num)\n\tDefinir isNumber Como Logico;\n\tisNumber = (string_isNumber_dispatcher(str_num) == 1);\nFinFuncion\n\nFuncion isNumber <- string_isNumber_float(str_num)\n\tDefinir isNumber Como Logico;\n\tisNumber = string_isNumber(str_num);\nFinFuncion\n\nFuncion result_string <- string_NULL\n\tDefinir result_string Como Texto;\n\tresult_string = \"\u0015\";\nFinFuncion\n\nFuncion println_array(array, index_array)\n\tDefinir i Como Entero;\n\tpara i = 0 Hasta math_decrement(index_array) Hacer\n\t\tnative_println(array[i]);\n\tFinPara\nFinFuncion\n\nFuncion println_array_color(array, index_array, color)\n\tprintln_array_decorator(array, index_array, color);\nFinFuncion\n\nFuncion println_array_decorator(array, index_array, decorator)\n\tDefinir i Como Entero;\n\tpara i = 0 Hasta math_decrement(index_array) Hacer\n\t\tarray[i] = string_append(decorator, array[i]);\n\tFinPara\n\tprintln_array(array, index_array);\nFinFuncion\n\nFuncion clearConsole\n\tnative_clearConsole();\nFinFuncion\n\nFuncion log_ERROR(message)\n\t__private_general_log(message, \"ERROR: \", COLOR_RED());\nFinFuncion\n\nFuncion __private_general_log(message, start_tag, SELECTED_COLOR)\n\tmessage = string_append(start_tag, message);\n\tnative_println(string_append(SELECTED_COLOR, message));\nFinFuncion\n\nFuncion num <- number_parseNumber(text_number)\n\tDefinir num Como Entero;\n\tSi string_isNumber(text_number) Entonces\n\t\tnum = native_number_parseNum(text_number);\n\tSiNo\n\t\tnum = number_NULL();\n\t\terror_message_function(\"number_parseNumber(text_number)\", string_append(\"The text cannot be parsed into a [number] >> \", text_number));\n\tFinSi\nFinFuncion\n\nFuncion boolean <- number_isEquals(num, num2)\n\tDefinir boolean Como Logico;\n\tboolean = boolean_isEquals_general(num, num2);\nFinFuncion\n\nFuncion result_string <- integer_ToString(num)\n\tDefinir result_string Como Texto;\n\tresult_string = native_number_toString(num);\n\tSi !string_isNumber_int(result_string) Entonces\n\t\texection_Error(string_append(\"typing error integer: \", result_string));\n\tFinSi\nFinFuncion\n\nFuncion result_string <- float_ToString(num)\n\tDefinir result_string Como Texto;\n\tresult_string = native_number_toString(num);\n\tSi !string_isNumber_float(result_string) Entonces\n\t\texection_Error(string_append(\"typing error Float: \", result_string));\n\tFinSi\nFinFuncion\n\nFuncion result <- math_max_int(value, limit)\n\tDefinir result Como Entero;\n\tresult = __private_math_choose(value, limit, true());\nFinFuncion\n\nFuncion result <- math_max_Float(value, limit)\n\tDefinir result Como Real;\n\tresult = __private_math_choose(value, limit, true());\nFinFuncion\n\nFuncion result <- math_min_int(value, limit)\n\tDefinir result Como Entero;\n\tresult = __private_math_choose(value, limit, false());\nFinFuncion\n\nFuncion result <- __private_math_choose(value, limit, isMax)\n\tDefinir result Como Entero;\n\tDefinir operation_flag Como Logico;\n\toperation_flag = (value > limit) & isMax;\n\toperation_flag = operation_flag | ((value < limit) & !isMax);\n\tSi operation_flag Entonces\n\t\tresult = value;\n\tSiNo\n\t\tresult = limit;\n\tFinSi\nFinFuncion\n\nFuncion num_div <- math_div_int(dividend, divisor)\n\tDefinir num_div Como Entero;\n\tnum_div = native_math_truncate(math_div(dividend, divisor));\nFinFuncion\n\nFuncion num_div <- math_div(dividend, divisor)\n\tDefinir num_div Como Real;\n\tSi divisor == 0 Entonces\n\t\tdivisor = number_NULL();\n\t\terror_message_function(\"math_div(dividend, divisor)\",\"divisor = 0\");\n\tFinSi\n\tnum_div = dividend / divisor;\nFinFuncion\n\nFuncion num_trunc <- math_truncate(num)\n\tDefinir num_trunc, index_point Como Entero;\n\tDefinir str_num Como Texto;\n\tstr_num = float_ToString(num);\n\tindex_point = string_indexOf(str_num, \".\");\n\tsi index_point > 0 Entonces\n\t\tstr_num = string_remove_From(str_num, index_point);\n\tFinSi\n\tnum_trunc = number_parseNumber(str_num);\nFinFuncion\n\nFuncion module <- math_module(dividend, divisor)\n\tDefinir module Como Entero;// module = a-floor(a/b)*b\n\tdivisor = math_max_float(divisor, 1);\n\tmodule = dividend - math_truncate(dividend/divisor) * divisor;\nFinFuncion\n\nFuncion numInc <- math_increment(num)\n\tDefinir numInc Como Numero;\n\tnumInc = num + 1;\nFinFuncion\n\nFuncion numInc <- math_sum(num, value)\n\tDefinir numInc Como Numero;\n\tnumInc = num + value;\nFinFuncion\n\nFuncion numDec <- math_decrement(num)\n\tDefinir numDec Como Numero;\n\tnumDec = num - 1;\nFinFuncion\n\nFuncion numDec <- math_minus(num, value)\n\tDefinir numDec Como Numero;\n\tnumDec = num - value;\nFinFuncion\n\nFuncion boolean <- false\n\tDefinir boolean Como Logico;\n\tboolean = Falso;\nFinFuncion\n\nFuncion boolean <- true\n\tDefinir boolean Como Logico;\n\tboolean = Verdadero;\nFinFuncion\n\nFuncion boolean <- boolean_isEquals_general(value1, value2)\n\tDefinir boolean Como Logico;\n\tboolean = (value1 == value2);\nFinFuncion\n\nFuncion result <- if_else(condition, result, result2)\n\tSi !(condition) Entonces\n\t\tresult = result2;\n\tFinSi\t\nFinFuncion\n\nFuncion error_message_function(method, message)\n\terror_message(string_append_withSeparator(method, message, \"//\"));\nFinFuncion\n\nFuncion error_message(message)\n\tnative_println(symbol_Escape() + \"31m[ERROR] // \" + message + \".\");\nFinFuncion\n\nFuncion message_validateRangeInString(Function_name, result_string, start, end)\n    Definir str_length Como Entero;\n    str_length = string_Length(result_string);\n    message_validateRangeInValue(Function_name, start, 0, str_length);\n    message_validateRangeInValue(Function_name, end, 0, str_length);\n\tsi (start > end) Entonces\n\t\terror_message_function(Function_name, \"Index Error: Start > End\");\n\tFinSi\nFinFuncion\n\nFuncion message_validateRangeInValue(Function_name, value, min_val, max_val)\n\tsi (min_val > max_val) Entonces\n\t\terror_message_function(Function_name, \"Config Error: Min > Max\");\n\tFinSi\n    Si !condition_number_IsInRange(value, min_val, max_val) Entonces\n        Definir error_msg Como Texto;\n        error_msg = string_append(\"Value out of range: \", integer_toString(value));\n        error_msg = string_append(error_msg, string_append(\" [Limit: \", integer_toString(min_val)));\n        error_msg = string_append(error_msg, string_append(\" - \", integer_toString(max_val)));\n        error_msg = string_append(error_msg, \"]\");\n        error_message_function(Function_name, error_msg);\n    FinSi\nFinFuncion\n\nFuncion IsInRange <- condition_number_IsInRange(value, min_val, max_val)\n    Definir IsInRange Como Logico;\n    IsInRange = value >= min_val & value <= max_val;\nFinFuncion\n\nFuncion exection_Error(message_Error)\n\tDefinir error_int Como Entero;\n\tlog_ERROR(message_Error);\n\terror_int = string_NULL();\nFinFuncion\n\nFuncion color <- COLOR_RED\n\tDefinir color Como Texto;\n\tcolor =  COLOR_byIndex(1);\nFinFuncion\n\nFuncion color <- COLOR_byIndex(index)\n\tDefinir color Como Texto;\n\tSi index < 0 Entonces \n\t\tindex = 0;\n\tFinSi\n\tsi (index > 7) Entonces\n\t\tindex = native_math_module(index, 8);\n\tFinSi\n\tindex = math_sum(index, 30);\n\tcolor = command_graphicText(index);\nFinFuncion\n\nFuncion color <- COLOR_STYLE_BOLD\n\tDefinir color Como Texto;\n\tcolor = command_graphicText(1);\nFinFuncion\n\nFuncion color <- COLOR_STYLE_PLAIN\n\tDefinir color Como Texto;\n\tcolor = command_graphicText(0);\nFinFuncion\n\nFuncion result_string <- symbol_Escape\n\tDefinir result_string Como Texto;\n\tresult_string = \"\u001b[\";\nFinFuncion\n\nFuncion Num <- number_NULL\n\tDefinir Num Como Entero;\n\tNum = -1;\nFinFuncion\n\nFuncion canvas_xy <- canvas_new_withPixel(CWx, CWy, pixel_background)\n\tDefinir canvas_xy, canvas_x Como Texto;\n\tcanvas_x  = string_repeatText(pixel_background, CWx);\n\tcanvas_xy = string_repeatText(canvas_x, CWy);\nFinFuncion\n\nFuncion canvas_display(canvas, CWx, CWy)\n\tcanvas_display_monoColor(canvas, CWx, CWy, \"\");\nFinFuncion\n\nFuncion canvas_display_monoColor(canvas, CWx, CWy, color)\n\tDefinir i, slice_start, slice_end, norm_CWy Como Entero;\n\tDefinir canvas_array, DrawX Como Texto;\n\tSi CWy > 0 Entonces\n\t\tDimension canvas_array[CWy];\n\t\tnorm_CWy = math_decrement(CWy);\n\t\tpara i=0 Hasta norm_CWy con paso 1 Hacer\n\t\t\tslice_start = canvas_calculate_index(0, i, CWx);\n\t\t\tslice_end \t= canvas_calculate_index(0, math_increment(i), CWx);\n\t\t\tDrawX\t\t= string_substring(canvas, slice_start, slice_end);\n\t\t\tcanvas_array[i] = DrawX;\n\t\tFinPara\t\n\t\tprintln_array_color(canvas_array, CWy, color);\n\tSiNo\n\t\terror_message_function(\"canvas_display_monoColor()\", \"error dimension CWy < 1\");\n\tFinSi\nFinFuncion\n\nFuncion index_canvas <- canvas_calculate_index(x0, y0, CWx)\n\tDefinir index_canvas Como Entero;\n\tindex_canvas= math_sum(x0, (y0*CWx));\nFinFuncion\n\nFuncion canvas_point <- canvas_DrawPoint(canvas, CWx, CWy, x0, y0)\n\tDefinir canvas_point Como Texto;\n\tcanvas_point = canvas_DrawPoint_withPixel(canvas, CWx, CWy, x0, y0, pixel_plain());\nFinFuncion\n\nFuncion canvas_point <- canvas_DrawPoint_withPixel(canvas, CWx, CWy, x0, y0, pixel_symb)\n\tDefinir canvas_point Como Texto;\n\tDefinir post_pixel Como Entero;\n\tcanvas_point = canvas;\n\tsi x0 < CWx & y0 < CWy & x0 >= 0 & y0 >= 0 Entonces\n\t\tpost_pixel = canvas_calculate_index(x0, y0, CWx);//x+(y*cX)=12+(1*40) = 52\n\t\tcanvas_point = string_insert_withReplace(canvas_point, pixel_symb, post_pixel);\n\tFinSi\nFinFuncion\n\nFuncion pixel <- pixel_plain\n\tDefinir pixel Como Texto;\n\tpixel = get_pixel_withIndex(1);\nFinFuncion\n\nFuncion pixel <- get_pixel_withIndex(index)\n\tDefinir pixel Como Texto;\n\tSegun index Hacer\n\t\tcaso 0:\n\t\t\tpixel = \"\u00b7\";\n\t\tcaso 1:\n\t\t\tpixel = \"\u00a4\";//*\n\t\tcaso 2: \n\t\t\tpixel = \"\u00f8\";\n\t\tDe Otro Modo:\n\t\t\tpixel = \"\u00d8\";\n\tFinSegun\nFinFuncion\n\nFuncion result_pixel <- canvas_getPixelRGB(b1, b2, b3, lum)\n\tDefinir result_pixel Como Texto;\n\tDefinir weight_b2, weight_b3, idx Como Entero;\n\tweight_b2 = b2 * 2;\n\tweight_b3 = b3 * 4;\n\tidx = math_sum(math_sum(weight_b2, weight_b3),  b1);\n\tSi lum > 0 Entonces\n\t\tresult_pixel = COLOR_STYLE_BOLD();\n\tSiNo\n\t\tresult_pixel = COLOR_STYLE_PLAIN();\n\tFinSi\n\tresult_pixel = string_append(result_pixel, COLOR_byIndex[idx]);\n\tresult_pixel = string_append(result_pixel, \"\u00b6\");\nFinFuncion\n\nFuncion pixel <- canvas_getPixelRGB_8(b1, b2, b3, lum)\n\tDefinir pixel Como Texto;//colors: 0,1,2,3,4,5,6,7\n\tDefinir i, j, num, residue Como Entero;\n\tDefinir rv, bv, gv Como Entero;\n\tpixel = \"\";\n\tnum = b1;\n\ti = 0 ;\n\tmientras i < 3 Hacer \n\t\tsegun i Hacer \n\t\t\tcaso 0: \n\t\t\t\tnum = b1;\n\t\t\tcaso 1: \n\t\t\t\tnum = b2;\n\t\t\tcaso 2: \n\t\t\t\tnum = b3;\n\t\tFinSegun\n\t\tj = 0;\n\t\tMientras j < 3 Hacer\n\t\t\tresidue = math_module(num, 2);\n\t\t\tnum = math_truncate(num/2);\n\t\t\tsegun j Hacer \n\t\t\t\tcaso 0: \n\t\t\t\t\trv = residue;\n\t\t\t\tcaso 1: \n\t\t\t\t\tbv = residue;\n\t\t\t\tcaso 2: \n\t\t\t\t\tgv = residue;\n\t\t\tFinSegun\n\t\t\tj = math_increment(j);\n\t\tFinMientras\n\t\tpixel = string_append(pixel, canvas_getPixelRGB(rv, bv, gv, lum));\n\t\ti = math_increment(i);\n\tFinMientras\nFinFuncion\n\nFuncion isType <- ascii_IsNumberSymbols(char)\n\tDefinir isType Como Logico;\n\tisType = ascii_isInRangue(char, '0', '9');//48-57\nFinFuncion\n\nFuncion iSinRangue <- ascii_isInRangue(char, char_start, char_end)\n\tDefinir iSinRangue Como Logico;\n\tiSinRangue = (char_start <= char & char <= char_end);\nFinFuncion\n\nFuncion color_asc <- command_graphicText(number_int)\n\tDefinir color_asc Como Texto;\n\tcolor_asc = command_esc(integer_toString(number_int), \"m\");\nFinFuncion\n\nFuncion esc <- command_esc(middle_command, end_command)\n    Definir esc Como Texto;\n    esc = string_append(string_append(symbol_Escape(), middle_command), end_command);\nFinFuncion\n\nFuncion console_setCursor(pos_x, pos_y)\n    Definir command_exe Como Texto;\n\tDefinir pos_xNorm, pos_yNorm Como Entero;\n\tpos_xNorm   = math_increment(math_max_int(pos_x, 0));\n\tpos_yNorm   = math_increment(math_max_int(pos_Y, 0));\n    command_exe = string_append(integer_toString(pos_xNorm), string_append(\";\", integer_toString(pos_yNorm)));\n    native_print(command_esc(command_exe, \"H\"));\nFinFuncion";
+const state = { imageData:null, processed:null, code:'', generated:false, overrides:new Map(), undo:[], drawing:false, strokeSnapshot:null, sizeInitialized:false };
+const fileInput = document.getElementById('fileInput');
+const origCanvas = document.getElementById('origCanvas');
+const quantCanvas = document.getElementById('quantCanvas');
+const output = document.getElementById('output');
+
+function sanitizeFunctionName(name) {
+  let s = (name || 'ImagenGenerada').trim().replace(/[^A-Za-z0-9_]/g, '_');
+  if (!/^[A-Za-z_]/.test(s)) s = 'F_' + s;
+  return s || 'ImagenGenerada';
+}
+
+function loadImageFromFile(file) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => { URL.revokeObjectURL(url); resolve(img); };
+    img.onerror = reject;
+    img.src = url;
+  });
+}
+
+function drawToCanvas(img) {
+  const ctx = origCanvas.getContext('2d');
+  origCanvas.width = img.width;
+  origCanvas.height = img.height;
+  ctx.clearRect(0, 0, img.width, img.height);
+  ctx.drawImage(img, 0, 0);
+}
+
+function fitSize(w, h, maxW, maxH, horizontalExpansion) {
+  // 1. Escalamos hasta la resolución seleccionada (automático = 150 máximo; manual sin ese límite).
+  const scale = Math.min(1, maxW / w, maxH / h);
+  const targetW = Math.max(1, Math.round(w * scale));
+  const targetH = Math.max(1, Math.round(h * scale));
+  // 2. Cada píxel lógico se convierte en 1/3/6... celdas horizontales.
+  // Muestreamos menos columnas antes de expandir, para NO superar el ancho final.
+  return {
+    w: Math.max(1, Math.floor(targetW / horizontalExpansion)),
+    h: targetH,
+    targetW,
+    targetH
+  };
+}
+
+function getSettings() {
+  return {
+    fnName: sanitizeFunctionName(document.getElementById('fnName').value),
+    pixelGlyph: getPixelGlyph(),
+    pixelMode: document.getElementById('pixelMode').value,
+    eightStrategy: document.getElementById('eightStrategy').value,
+    ditherAmount: Number(document.getElementById('ditherAmount').value) / 100,
+    spatial2Strength: Number(document.getElementById('spatial2Strength').value) / 100,
+    spatial3Detail: Number(document.getElementById('spatial3Detail').value) / 100,
+    spatial4Isolated: Number(document.getElementById('spatial4Isolated').value) / 100,
+    ditherMethod: document.getElementById('ditherMethod').value,
+    ditherStrength: Number(document.getElementById('ditherStrength').value) / 100,
+    ditherEdgeProtect: document.getElementById('ditherEdgeProtect').checked,
+    smoothDownsample: document.getElementById('smoothDownsample').checked,
+    maxW: Math.max(1, Math.round(Number(document.getElementById('targetW').value) || 150)),
+    maxH: Math.max(1, Math.round(Number(document.getElementById('targetH').value) || 150)),
+    repeatX: Math.max(1, parseInt(document.getElementById('repeatX').value || '1', 10)),
+    blendWidthMode: document.getElementById('blendWidthMode').value,
+    lockAspect: document.getElementById('lockAspect').checked,
+    consoleCellAspect: Math.max(0.20,Math.min(1.5,Number(document.getElementById('consoleCellAspect').value)||3/7)),
+    rgbThreshold: parseInt(document.getElementById('rgbThreshold').value || '128', 10),
+    lumThreshold: parseInt(document.getElementById('lumThreshold').value || '66', 10),
+    brightnessAdjust: Number(document.getElementById('brightnessAdjust').value || '135') / 100,
+    gammaAdjust: Number(document.getElementById('gammaAdjust').value || '115') / 100,
+    alphaThreshold: parseInt(document.getElementById('alphaThreshold').value || '20', 10),
+    blackThreshold: parseInt(document.getElementById('blackThreshold').value || '16', 10),
+    trimTransparent: document.getElementById('trimTransparent').checked,
+    omitNearBlack: document.getElementById('omitNearBlack').checked,
+    addMain: document.getElementById('addMain').checked,
+    addFinalWait: document.getElementById('addFinalWait').checked,
+    optAggressive: document.getElementById('optAggressive').checked,
+  };
+}
+
+// Motor de cuantizacion CLASICO de la v9: tres niveles de distribucion para RGB8.
+// Correccion respecto a v9: la paleta interna de PseudoLib es R + 2*G + 4*B.
+// Nada de buscar un unico "color mas cercano" como en la v16: borra detalles.
+const DIM_FACTOR = 140;
+const BRIGHT_FACTOR = 255;
+const BASE_RGB = Array.from({length:8}, (_,index) => [index&1 ? 255 : 0, index&2 ? 255 : 0, index&4 ? 255 : 0]);
+function paletteFactor(lum){ return lum ? BRIGHT_FACTOR : DIM_FACTOR; }
+function paletteRGB(index, lum){
+  const f = paletteFactor(lum);
+  return [index&1 ? f : 0, index&2 ? f : 0, index&4 ? f : 0];
+}
+// Distancia usada solo por el modo espacial experimental, no por el modo clásico v9.
+function colorDistance(r,g,b,pr,pg,pb){
+  const dr=r-pr, dg=g-pg, db=b-pb;
+  return 1.05*dr*dr + 1.1*dg*dg + 0.82*db*db;
+}
+function clamp255(v){return Math.max(0,Math.min(255,Math.round(v)));}
+function applyToneAdjust(r,g,b,s){
+  const br=Math.max(0.01,s.brightnessAdjust||1);
+  const ga=Math.max(0.05,s.gammaAdjust||1);
+  const adj=v=>{
+    let x=Math.max(0,Math.min(1,(v/255)*br));
+    x=Math.pow(x,ga);
+    return clamp255(x*255);
+  };
+  return [adj(r),adj(g),adj(b)];
+}
+function mixRGB8(r,g,b,x,y) {
+  // Algoritmo original v9: cada canal tiene 0..3 activaciones.
+  // Esas activaciones se distribuyen entre las 3 celdas de un pixel RGB8.
+  // Mantener RGB real evita intercambiar magenta/amarillo en PSeInt.
+  const amounts = [r, g, b].map(v => Math.max(0,Math.min(3,Math.round(v*3/255))));
+  const out = [0,0,0];
+  const phase = (x + y*2) % 3;
+  const orders = [[0,2,1],[1,0,2],[2,1,0]];
+  for (let c=0;c<3;c++) {
+    const n=amounts[c];
+    const order=orders[(phase+c)%3];
+    for (let k=0;k<n;k++) out[order[k]] |= 1 << c;
+  }
+  return { palette:out, lum:null };
+}
+function repeatPalette8(base, n) {
+  const expanded=[];
+  for(const color of base) for(let i=0;i<n;i++) expanded.push(color);
+  const packs=[];
+  for(let i=0;i<expanded.length;i+=3) packs.push(expanded.slice(i,i+3));
+  return packs;
+}
+function isSpatial8(s){return s.pixelMode==='8b' && s.eightStrategy==='spatial';}
+function isSpatial2_8(s){return s.pixelMode==='8b' && s.eightStrategy==='spatial2';}
+function isSpatial3_8(s){return s.pixelMode==='8b' && s.eightStrategy==='spatial3';}
+function isSpatial4_8(s){return s.pixelMode==='8b' && s.eightStrategy==='spatial4';}
+function isAnySpatial8(s){return s.pixelMode==='8b' && (s.eightStrategy==='spatial' || s.eightStrategy==='spatial2' || s.eightStrategy==='spatial3' || s.eightStrategy==='spatial4');}
+function isDither8(s){return s.pixelMode==='8b' && s.eightStrategy==='dither';}
+function isSingleCell8(s){return s.pixelMode==='8b' && s.eightStrategy!=='blend';}
+function isBlend8(s){return s.pixelMode==='8b' && s.eightStrategy==='blend';}
+function blendUsesLogicalWidth(s){return isBlend8(s) && s.blendWidthMode==='logical';}
+function cellScale(s) { return s.repeatX * (isBlend8(s) ? 3 : 1); }
+// Geometría única. Nunca se confunden bytes RGB, píxeles lógicos y columnas visibles.
+// _8 devuelve 3 celdas terminales: el modo blend las usa por píxel de origen;
+// spatial/dither las empaquetan de 3 en 3 sin multiplicar píxeles de origen.
+function resolveOutputGeometry(s,source){
+  const cellWidth=cellScale(s); // 1 celda por píxel RGB3, 3 en mezcla RGB8.
+  const ratio=s.consoleCellAspect; // proporción física medida: ancho de celda / alto de celda.
+  // La resolución solicitada es VISUAL. El ancho del terminal se mide en columnas,
+  // que son más estrechas que las filas: aprox. 3x7 píxeles físicos en esta consola.
+  const desiredColumns=Math.max(1,Math.round(s.maxW/ratio));
+  const logicalWidth=Math.max(1,blendUsesLogicalWidth(s)?Math.round(s.maxW):Math.round(desiredColumns/cellWidth));
+  const finalWidth=logicalWidth*cellWidth;
+  let height=Math.max(1,s.maxH);
+  if(blendUsesLogicalWidth(s) && s.lockAspect && source && source.width>0 && source.height>0){
+    // El modo ancho lógico produce 3 caracteres por píxel lógico en RGB8 clásico.
+    // Convertir esos caracteres a unidades VISUALES antes de obtener el alto.
+    const visualWidth=finalWidth*ratio;
+    height=Math.max(1,Math.round(visualWidth*source.height/source.width));
+  }
+  return {logicalWidth,height,finalWidth,cellWidth,packedWidth:3,consoleCellAspect:ratio,visualWidth:finalWidth*ratio};
+}
+
+function cellIndexOf(px,s){
+  if(s.pixelMode!=='8b') return px.colorIndex;
+  if(s.eightStrategy==='dither') return px.ditherIndex;
+  if(s.eightStrategy==='spatial' || s.eightStrategy==='spatial2' || s.eightStrategy==='spatial3' || s.eightStrategy==='spatial4') return px.spatialIndex;
+  return px.palette8[0];
+}
+function cellLumOf(px,s){
+  if(s.pixelMode!=='8b') return px.lum;
+  if(s.eightStrategy==='dither') return px.ditherLum;
+  if(s.eightStrategy==='spatial' || s.eightStrategy==='spatial2' || s.eightStrategy==='spatial3' || s.eightStrategy==='spatial4') return px.spatialLum;
+  return px.paletteLum;
+}
+function createPixel(r,g,b,lum,x,y,settings) {
+  // 3b: volver a umbrales por canal de v9 (sin distancia perceptual global).
+  const rr=r>=settings.rgbThreshold?1:0;
+  const gg=g>=settings.rgbThreshold?1:0;
+  const bb=b>=settings.rgbThreshold?1:0;
+  const ci=rr + gg*2 + bb*4;
+  // 8b clasico v9: 3 celdas/canal con bits distribuidos entre ellas.
+  const mixed=(settings.pixelMode==='8b'&&settings.eightStrategy==='blend')?mixRGB8(r,g,b,x,y):null;
+  return {r:rr,g:gg,b:bb,lum,colorIndex:ci,rawR:r,rawG:g,rawB:b,
+          palette8:mixed?mixed.palette:[ci,ci,ci],paletteLum:lum,
+          spatialIndex:ci,spatialLum:lum,ditherIndex:ci,ditherLum:lum};
+}
+// NUEVO: distribucion de color y luminosidad a resolucion completa.
+// El clasico v9, que usa mezcla por tres celdas, permanece intacto.
+function computeSpatialPaletteV1(p,s) {
+  const W=p.width,H=p.height;
+  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+  const luma=(r,g,b)=>.2126*r+.7152*g+.0722*b;
+  const BAYER=[
+    [0,48,12,60,3,51,15,63],
+    [32,16,44,28,35,19,47,31],
+    [8,56,4,52,11,59,7,55],
+    [40,24,36,20,43,27,39,23],
+    [2,50,14,62,1,49,13,61],
+    [34,18,46,30,33,17,45,29],
+    [10,58,6,54,9,57,5,53],
+    [42,26,38,22,41,25,37,21]
+  ];
+  const threshold=(x,y,seed)=>{
+    const xx=(x+seed*3)&7, yy=(y+seed*5)&7;
+    return (BAYER[yy][xx]+.5)/64;
+  };
+  const lumGrid=Array.from({length:H},(_,y)=>Array.from({length:W},(_,x)=>{
+    const px=p.pixels[y][x];return px?luma(px.rawR,px.rawG,px.rawB):0;
+  }));
+  let carry=Array.from({length:W+2},()=>[0,0,0]);
+  for(let y=0;y<H;y++){
+    const next=Array.from({length:W+2},()=>[0,0,0]);
+    const direction=(y&1)?-1:1;
+    for(let x=direction===1?0:W-1;x>=0&&x<W;x+=direction){
+      const px=p.pixels[y][x];if(!px)continue;
+      const raw=[px.rawR,px.rawG,px.rawB];
+      let sum=lumGrid[y][x],count=1;
+      for(const [dx,dy] of [[-1,0],[1,0],[0,-1],[0,1]]){
+        const xx=x+dx,yy=y+dy;
+        if(xx>=0&&xx<W&&yy>=0&&yy<H&&p.pixels[yy][xx]){sum+=lumGrid[yy][xx];count++;}
+      }
+      const diff=lumGrid[y][x]-sum/count;
+      const contrast=clamp(diff*.6,-28,28);
+      const edge=clamp(Math.abs(diff)/55,0,1);
+      const strength=s.ditherAmount*(1-edge*.75);
+      const target=raw.map((v,c)=>clamp(v+contrast+carry[x+1][c]*strength,0,255));
+      const peak=Math.max(...target);
+      const pBold=clamp((peak-s.lumThreshold)/(255-s.lumThreshold),0,1);
+      const lum=px.manualLum==null?(threshold(x,y,0)<pBold?1:0):px.manualLum;
+      const factor=paletteFactor(lum);
+      let color=0;
+      for(let c=0;c<3;c++){
+        if(threshold(x,y,c+1)<clamp(target[c]/factor,0,1))color|=1<<c;
+      }
+      px.spatialIndex=color;
+      px.spatialLum=lum;
+      const chosen=[color&1?factor:0,color&2?factor:0,color&4?factor:0];
+      const err=target.map((v,i)=>clamp(v-chosen[i],-75,75));
+      const distribute=(buf,xx,weight,yy)=>{
+        if(xx>=0&&xx<W&&yy>=0&&yy<H&&p.pixels[yy][xx]){
+          for(let c=0;c<3;c++)buf[xx+1][c]+=err[c]*weight;
+        }
+      };
+      distribute(carry,x+direction,7/16,y);
+      distribute(next,x-direction,3/16,y+1);
+      distribute(next,x,5/16,y+1);
+      distribute(next,x+direction,1/16,y+1);
+    }
+    carry=next;
+  }
+}
+
+// Refinada v2: conservar la cuantización probada de v1 y atacar únicamente
+// el ruido cromático de la señal ANTES de cuantizar. No filtrar píxeles RGB
+// finales mediante mayoría: esos píxeles aislados son parte del tramado.
+function computeSpatialPaletteV2(p,s) {
+  const amount=Math.max(0,Math.min(1,s.spatial2Strength));
+  if(amount<=0){ computeSpatialPaletteV1(p,s); return; }
+  const W=p.width,H=p.height;
+  const luma=(a)=>.2126*a[0]+.7152*a[1]+.0722*a[2];
+  const clamp=(v)=>Math.max(0,Math.min(255,v));
+  // Capturar una imagen inmutable para que los vecinos no dependan del orden.
+  const originals=Array.from({length:H},(_,y)=>Array.from({length:W},(_,x)=>{
+    const px=p.pixels[y][x];return px?[px.rawR,px.rawG,px.rawB]:null;
+  }));
+  const processed=Array.from({length:H},()=>Array(W).fill(null));
+  // Núcleo 3x3: peso espacial y parecido cromático/lumínico.
+  // Si hay un borde importante, el píxel conserva casi el 100% de su color.
+  const spatial=[[1,2,1],[2,4,2],[1,2,1]];
+  const sigmaY=18+amount*14;
+  const sigmaC=22+amount*18;
+  const invY=1/(2*sigmaY*sigmaY), invC=1/(2*sigmaC*sigmaC);
+  const chromaBlend=0.15+amount*0.50;
+  for(let y=0;y<H;y++) for(let x=0;x<W;x++) {
+    const center=originals[y][x]; if(!center)continue;
+    const Y0=luma(center);
+    const C0=center.map(v=>v-Y0);
+    let totalWeight=0,chromSum=[0,0,0];
+    let maxEdge=0;
+    for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){
+      const xx=x+dx,yy=y+dy;
+      if(xx<0||xx>=W||yy<0||yy>=H) continue;
+      const rgb=originals[yy][xx];if(!rgb)continue;
+      const Yn=luma(rgb),deltaY=Yn-Y0;
+      const chrom=rgb.map(v=>v-Yn);
+      const chromDist=(chrom[0]-C0[0])**2+(chrom[1]-C0[1])**2+(chrom[2]-C0[2])**2;
+      const weight=spatial[dy+1][dx+1]*Math.exp(-deltaY*deltaY*invY-chromDist*invC/3);
+      totalWeight+=weight;
+      for(let c=0;c<3;c++)chromSum[c]+=weight*chrom[c];
+      if(dx===0 || dy===0)maxEdge=Math.max(maxEdge,Math.abs(deltaY));
+    }
+    const edgeGuard=Math.max(0,1-maxEdge/42);
+    const mix=chromaBlend*(0.2+0.8*edgeGuard);
+    const rgb=center.map((v,c)=>clamp(Y0 + C0[c]*(1-mix) + (chromSum[c]/totalWeight)*mix));
+    // Reconstrucción de luminancia exacta: ojos, nariz, brillo y relieve intactos.
+    const dY=Y0-luma(rgb);
+    processed[y][x]=rgb.map(v=>clamp(v+dY));
+  }
+  // Se ejecuta exactamente el mismo algoritmo de v1, con una difusión
+  // moderadamente contenida en v2. No se modifica el archivo fuente ni v1.
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++){
+    const px=p.pixels[y][x],rgb=processed[y][x];if(!px||!rgb)continue;
+    [px.rawR,px.rawG,px.rawB]=rgb;
+  }
+  try {
+    computeSpatialPaletteV1(p,{...s,ditherAmount:s.ditherAmount*(1-0.80*amount)});
+  } finally {
+    for(let y=0;y<H;y++)for(let x=0;x<W;x++){
+      const px=p.pixels[y][x],rgb=originals[y][x];if(!px||!rgb)continue;
+      [px.rawR,px.rawG,px.rawB]=rgb;
+    }
+  }
+}
+// Refinada v3: limpieza cromática de v2 con nitidez local derivada del
+// comportamiento sin trama en bordes del clásico v9. Calculado offline en HTML.
+function computeSpatialPaletteSharpV3(p,s,dt) {
+  const W=p.width,H=p.height;
+  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+  const luma=(r,g,b)=>.2126*r+.7152*g+.0722*b;
+  const BAYER=[
+    [0,48,12,60,3,51,15,63],
+    [32,16,44,28,35,19,47,31],
+    [8,56,4,52,11,59,7,55],
+    [40,24,36,20,43,27,39,23],
+    [2,50,14,62,1,49,13,61],
+    [34,18,46,30,33,17,45,29],
+    [10,58,6,54,9,57,5,53],
+    [42,26,38,22,41,25,37,21]
+  ];
+  const threshold=(x,y,seed)=>{
+    const xx=(x+seed*3)&7, yy=(y+seed*5)&7;
+    return (BAYER[yy][xx]+.5)/64;
+  };
+  const lumGrid=Array.from({length:H},(_,y)=>Array.from({length:W},(_,x)=>{
+    const px=p.pixels[y][x];return px?luma(px.rawR,px.rawG,px.rawB):0;
+  }));
+  let carry=Array.from({length:W+2},()=>[0,0,0]);
+  for(let y=0;y<H;y++){
+    const next=Array.from({length:W+2},()=>[0,0,0]);
+    const direction=(y&1)?-1:1;
+    for(let x=direction===1?0:W-1;x>=0&&x<W;x+=direction){
+      const px=p.pixels[y][x];if(!px)continue;
+      const raw=[px.rawR,px.rawG,px.rawB];
+      let sum=lumGrid[y][x],count=1,maxEdge=0;
+      for(const [dx,dy] of [[-1,0],[1,0],[0,-1],[0,1]]){
+        const xx=x+dx,yy=y+dy;
+        if(xx>=0&&xx<W&&yy>=0&&yy<H&&p.pixels[yy][xx]){
+          sum+=lumGrid[yy][xx];count++;
+          maxEdge=Math.max(maxEdge,Math.abs(lumGrid[y][x]-lumGrid[yy][xx]));
+        }
+      }
+      const diff=lumGrid[y][x]-sum/count;
+      const contrast=clamp(diff*(.6 + 1.0*dt),-(28+30*dt),28+30*dt);
+      // La vecindad detecta rasgos delgados aunque su promedio sea similar.
+      const edge=clamp(Math.max(Math.abs(diff)/55,maxEdge/88),0,1);
+      const sharp=dt*clamp(edge*1.7,0,1)*.90;
+      // La difusión conserva las superficies suaves, pero se retira de los contornos.
+      const strength=s.ditherAmount*(1-edge*(.75+.20*dt));
+      const target=raw.map((v,c)=>clamp(v+contrast+carry[x+1][c]*strength,0,255));
+      const peak=Math.max(...target);
+      const pBold=clamp((peak-s.lumThreshold)/(255-s.lumThreshold),0,1);
+      const lumThreshold=threshold(x,y,0)*(1-sharp)+.5*sharp;
+      const lum=px.manualLum==null?(lumThreshold<pBold?1:0):px.manualLum;
+      const factor=paletteFactor(lum);
+      let color=0;
+      for(let c=0;c<3;c++){
+        const colorThreshold=threshold(x,y,c+1)*(1-sharp)+.5*sharp;
+        if(colorThreshold<clamp(target[c]/factor,0,1))color|=1<<c;
+      }
+      px.spatialIndex=color;
+      px.spatialLum=lum;
+      const chosen=[color&1?factor:0,color&2?factor:0,color&4?factor:0];
+      const err=target.map((v,i)=>clamp(v-chosen[i],-75,75));
+      const distribute=(buf,xx,weight,yy)=>{
+        if(xx>=0&&xx<W&&yy>=0&&yy<H&&p.pixels[yy][xx]){
+          for(let c=0;c<3;c++)buf[xx+1][c]+=err[c]*weight;
+        }
+      };
+      distribute(carry,x+direction,7/16,y);
+      distribute(next,x-direction,3/16,y+1);
+      distribute(next,x,5/16,y+1);
+      distribute(next,x+direction,1/16,y+1);
+    }
+    carry=next;
+  }
+}
+
+function computeSpatialPaletteV3(p,s) {
+  const dt=Math.max(0,Math.min(1,Number(s.spatial3Detail)||0));
+  // Criterio verificable: al 0 %, v3 y v2 producen exactamente la misma salida.
+  if(dt<=0){ computeSpatialPaletteV2(p,s); return; }
+  const amount=Math.max(0,Math.min(1,s.spatial2Strength))*(1-.5*dt);
+  if(amount<=0){ computeSpatialPaletteSharpV3(p,s,dt); return; }
+  const W=p.width,H=p.height;
+  const luma=(a)=>.2126*a[0]+.7152*a[1]+.0722*a[2];
+  const clamp=(v)=>Math.max(0,Math.min(255,v));
+  // Capturar una imagen inmutable para que los vecinos no dependan del orden.
+  const originals=Array.from({length:H},(_,y)=>Array.from({length:W},(_,x)=>{
+    const px=p.pixels[y][x];return px?[px.rawR,px.rawG,px.rawB]:null;
+  }));
+  const processed=Array.from({length:H},()=>Array(W).fill(null));
+  // Núcleo 3x3: peso espacial y parecido cromático/lumínico.
+  // Si hay un borde importante, el píxel conserva casi el 100% de su color.
+  const spatial=[[1,2,1],[2,4,2],[1,2,1]];
+  const sigmaY=18+amount*14;
+  const sigmaC=22+amount*18;
+  const invY=1/(2*sigmaY*sigmaY), invC=1/(2*sigmaC*sigmaC);
+  const chromaBlend=0.15+amount*0.50;
+  for(let y=0;y<H;y++) for(let x=0;x<W;x++) {
+    const center=originals[y][x]; if(!center)continue;
+    const Y0=luma(center);
+    const C0=center.map(v=>v-Y0);
+    let totalWeight=0,chromSum=[0,0,0];
+    let maxEdge=0;
+    for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){
+      const xx=x+dx,yy=y+dy;
+      if(xx<0||xx>=W||yy<0||yy>=H) continue;
+      const rgb=originals[yy][xx];if(!rgb)continue;
+      const Yn=luma(rgb),deltaY=Yn-Y0;
+      const chrom=rgb.map(v=>v-Yn);
+      const chromDist=(chrom[0]-C0[0])**2+(chrom[1]-C0[1])**2+(chrom[2]-C0[2])**2;
+      const weight=spatial[dy+1][dx+1]*Math.exp(-deltaY*deltaY*invY-chromDist*invC/3);
+      totalWeight+=weight;
+      for(let c=0;c<3;c++)chromSum[c]+=weight*chrom[c];
+      if(dx===0 || dy===0)maxEdge=Math.max(maxEdge,Math.abs(deltaY));
+    }
+    const edgeGuard=Math.max(0,1-maxEdge/42);
+    const mix=chromaBlend*(0.2+0.8*edgeGuard);
+    const rgb=center.map((v,c)=>clamp(Y0 + C0[c]*(1-mix) + (chromSum[c]/totalWeight)*mix));
+    // Reconstrucción de luminancia exacta: ojos, nariz, brillo y relieve intactos.
+    const dY=Y0-luma(rgb);
+    processed[y][x]=rgb.map(v=>clamp(v+dY));
+  }
+  // Se ejecuta exactamente el mismo algoritmo de v1, con una difusión
+  // moderadamente contenida en v2. No se modifica el archivo fuente ni v1.
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++){
+    const px=p.pixels[y][x],rgb=processed[y][x];if(!px||!rgb)continue;
+    [px.rawR,px.rawG,px.rawB]=rgb;
+  }
+  try {
+    computeSpatialPaletteSharpV3(p,{...s,ditherAmount:s.ditherAmount*(1-0.80*amount)},dt);
+  } finally {
+    for(let y=0;y<H;y++)for(let x=0;x<W;x++){
+      const px=p.pixels[y][x],rgb=originals[y][x];if(!px||!rgb)continue;
+      [px.rawR,px.rawG,px.rawB]=rgb;
+    }
+  }
+}
+
+// V32: la celda omitida (null) es fondo real, no un color RGB visible.
+// Se aplican componentes conexas y se comprueba que estén en la región exterior.
+function cleanupExteriorSpeckles(p, strength){
+  const W=p.width,H=p.height, N=W*H;
+  const level=Math.max(0,Math.min(1,Number(strength)||0));
+  const emptyStats={removed:0,groups:0,background:'ninguno',maxGroup:0};
+  if(level<=0||N===0) return emptyStats;
+  const pix=p.pixels;
+  const key=(px)=>px?(px.spatialIndex+'_'+px.spatialLum):'null';
+  const border=new Map(), add=(x,y)=>{const k=key(pix[y][x]);border.set(k,(border.get(k)||0)+1);};
+  for(let x=0;x<W;x++){add(x,0);if(H>1)add(x,H-1);}
+  for(let y=1;y<H-1;y++){add(0,y);if(W>1)add(W-1,y);}
+  const edgeCount=Math.max(1,2*W+2*Math.max(0,H-2));
+  let dominant='null',best=0;
+  for(const [k,count] of border) if(count>best){dominant=k;best=count;}
+  // Null siempre es vacío; si no existe, se admite el color dominante real del borde
+  // solo cuando aparece repetidamente, para evitar confundir piel/gorro con fondo.
+  const includeBorderColor=dominant!=='null' && best>=Math.max(4,Math.ceil(edgeCount*.38));
+  const bgIndex=includeBorderColor?Number(dominant.split('_')[0]):0;
+  const bgLum=includeBorderColor?Number(dominant.split('_')[1]):0;
+  const isBG=(x,y)=>{
+    const px=pix[y][x];
+    return !px || (includeBorderColor && px.spatialIndex===bgIndex && px.spatialLum===bgLum);
+  };
+  const background=(includeBorderColor?dominant:'null');
+  const neighbors8=[[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]];
+  const inside=(x,y)=>x>=0&&x<W&&y>=0&&y<H;
+  const pos=(x,y)=>y*W+x;
+  const backgroundMask=new Uint8Array(N);
+  for(let y=0;y<H;y++) for(let x=0;x<W;x++) if(isBG(x,y))backgroundMask[pos(x,y)]=1;
+  // 1. Componentes de primer plano; el tamaño máximo crece con el control.
+  const visited=new Uint8Array(N),groups=[];
+  const maxSmall=Math.max(1,Math.round(1+level*27));
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++){
+    const start=pos(x,y);
+    if(visited[start]||backgroundMask[start])continue;
+    const cells=[start];visited[start]=1;
+    for(let i=0;i<cells.length;i++){
+      const current=cells[i],cy=(current/W)|0,cx=current-cy*W;
+      for(const [dx,dy] of neighbors8){
+        const xx=cx+dx,yy=cy+dy;if(!inside(xx,yy))continue;
+        const k=pos(xx,yy);
+        if(!visited[k]&&!backgroundMask[k]){visited[k]=1;cells.push(k);}
+      }
+    }
+    groups.push(cells);
+  }
+  if(!groups.length) return {...emptyStats,background,maxGroup:maxSmall};
+  // 2. La figura principal es el conjunto de componentes grandes. Nunca se borra.
+  const largest=groups.reduce((m,g)=>Math.max(m,g.length),0);
+  const majorMask=new Uint8Array(N);
+  for(const group of groups){
+    if(group.length>maxSmall || group.length===largest){
+      for(const k of group)majorMask[k]=1;
+    }
+  }
+  // 3. Flood fill del EXTERIOR de esas figuras, no de la paleta de colores.
+  // Las partículas diminutas no bloquean el flood fill: así se detectan incluso
+  // si son magenta, rojo, verde, etc. y están encima del gorro.
+  const outside=new Uint8Array(N),queue=new Int32Array(N);
+  let head=0,tail=0;
+  const enqueue=k=>{if(!outside[k]&&!majorMask[k]){outside[k]=1;queue[tail++]=k;}};
+  for(let x=0;x<W;x++){enqueue(pos(x,0));if(H>1)enqueue(pos(x,H-1));}
+  for(let y=1;y<H-1;y++){enqueue(pos(0,y));if(W>1)enqueue(pos(W-1,y));}
+  while(head<tail){
+    const k=queue[head++],y=(k/W)|0,x=k-y*W;
+    for(const [dx,dy] of neighbors8){
+      const xx=x+dx,yy=y+dy;if(!inside(xx,yy))continue;
+      enqueue(pos(xx,yy));
+    }
+  }
+  // 4. Borrar componentes pequeñas que están en el espacio exterior.
+  // Al eliminar una celda se vuelve null si el fondo era transparente/negro omitido;
+  // así desaparece tanto en la simulación como del PSC exportado.
+  let removed=0,removedGroups=0;
+  for(const group of groups){
+    if(group.length>maxSmall||group.length===largest)continue;
+    let exterior=0,exposure=0,available=0;
+    for(const k of group){
+      if(outside[k])exterior++;
+      const y=(k/W)|0,x=k-y*W;
+      for(const [dx,dy] of neighbors8){
+        const xx=x+dx,yy=y+dy;if(!inside(xx,yy))continue;
+        const nk=pos(xx,yy);available++;
+        if(backgroundMask[nk]&&outside[nk])exposure++;
+      }
+    }
+    // Un punto o pequeño grupo en el exterior se elimina. Los grupos que
+    // están dentro de huecos encerrados por la silueta quedan protegidos.
+    if(exterior/group.length<0.75 || (exposure===0 && group.length>1))continue;
+    for(const k of group){
+      const y=(k/W)|0,x=k-y*W;
+      if(includeBorderColor){
+        const px=pix[y][x];if(px){px.spatialIndex=bgIndex;px.spatialLum=bgLum;}
+      }else{
+        pix[y][x]=null;
+      }
+      removed++;
+    }
+    removedGroups++;
+  }
+  return {removed,groups:removedGroups,background,maxGroup:maxSmall};
+}
+function computeSpatialPaletteV4(p,s) {
+  computeSpatialPaletteV3(p,s);
+  const iso=Math.max(0,Math.min(1,Number(s.spatial4Isolated)||0));
+  p.exteriorCleanup=cleanupExteriorSpeckles(p,iso);
+}
+
+// Modo de transiciones por vecinos retirado en v26.
+
+function ditherClamp(v,lo=0,hi=255){return Math.max(lo,Math.min(hi,v));}
+function ditherLuma(v){return v[0]*.2126 + v[1]*.7152 + v[2]*.0722;}
+function ditherRaw(px){return [px.rawR,px.rawG,px.rawB];}
+function ditherNearest(v){
+  // 16 variantes reales: los 8 colores basicos, con luminancia tenue o intensa.
+  let bestIndex=0,bestLum=0,bestErr=Infinity,bestRGB=[0,0,0];
+  for(let lum=0;lum<=1;lum++) for(let index=0;index<8;index++) {
+    const rgb=paletteRGB(index,lum);
+    const dr=v[0]-rgb[0], dg=v[1]-rgb[1], db=v[2]-rgb[2];
+    const ly=ditherLuma(v)-ditherLuma(rgb);
+    const err=1.0*dr*dr + 1.12*dg*dg + .87*db*db + .28*ly*ly;
+    if(err<bestErr){bestErr=err;bestIndex=index;bestLum=lum;bestRGB=rgb;}
+  }
+  return {index:bestIndex,lum:bestLum,rgb:bestRGB};
+}
+function ditherNearestPair(v){
+  const ranked=[];
+  for(let lum=0;lum<=1;lum++) for(let index=0;index<8;index++) {
+    const rgb=paletteRGB(index,lum);
+    const dr=v[0]-rgb[0], dg=v[1]-rgb[1], db=v[2]-rgb[2];
+    const ly=ditherLuma(v)-ditherLuma(rgb);
+    const err=1.0*dr*dr + 1.12*dg*dg + .87*db*db + .28*ly*ly;
+    ranked.push({index,lum,rgb,err});
+  }
+  ranked.sort((a,b)=>a.err-b.err);
+  return [ranked[0], ranked[1], ranked[2]];
+}
+function ditherLocalVariation(p,x,y){
+  const px=p.pixels[y][x]; if(!px) return 255;
+  const raw=[px.rawR,px.rawG,px.rawB];
+  let acc=0,count=0;
+  for(const [dx,dy] of [[-1,0],[1,0],[0,-1],[0,1]]){
+    const xx=x+dx, yy=y+dy;
+    if(xx<0||xx>=p.width||yy<0||yy>=p.height||!p.pixels[yy][xx]) continue;
+    const q=p.pixels[yy][xx];
+    const d=Math.sqrt((raw[0]-q.rawR)**2+(raw[1]-q.rawG)**2+(raw[2]-q.rawB)**2);
+    acc+=d; count++;
+  }
+  return count?acc/count:0;
+}
+function ditherChooseHybrid(p,x,y,target,strength){
+  const variation=ditherLocalVariation(p,x,y);
+  const flatness=ditherClamp((42-variation)/42,0,1);
+  const pair=ditherNearestPair(target);
+  const best=pair[0], second=pair[1];
+  if(flatness<0.12) return {choice:best, flat:false, flatness};
+  const avg=[(best.rgb[0]+second.rgb[0])/2,(best.rgb[1]+second.rgb[1])/2,(best.rgb[2]+second.rgb[2])/2];
+  const avgErr=(target[0]-avg[0])**2+(target[1]-avg[1])**2+(target[2]-avg[2])**2;
+  const bestErr=(target[0]-best.rgb[0])**2+(target[1]-best.rgb[1])**2+(target[2]-best.rgb[2])**2;
+  const pattern=((DITHER_BAYER2[y&1][x&1]+0.5)/4)-0.5;
+  const perturb=(18+24*flatness)*strength;
+  const shifted=target.map(v=>ditherClamp(v+pattern*perturb));
+  const picked=ditherNearest(shifted);
+  // Si la mezcla de dos colores puede ayudar en zonas planas, usar patrón 2x2 estable.
+  const pairUseful=avgErr < bestErr*0.93;
+  if(pairUseful){
+    const useFirst = DITHER_BAYER2[y&1][x&1] < 2;
+    const chosen = useFirst ? best : second;
+    return {choice:{index:chosen.index,lum:chosen.lum,rgb:chosen.rgb}, flat:true, flatness};
+  }
+  return {choice:picked, flat:true, flatness};
+}
+function ditherHalftoneThreshold(x,y,channel){
+  // Tramas de puntos con angulos diferentes por canal.
+  const angle=[Math.PI/4,Math.PI/12,-Math.PI/4][channel];
+  const phase=[0,1.3,2.2][channel];
+  const c=Math.cos(angle),sn=Math.sin(angle);
+  const u=((x*c-y*sn+phase)%5+5)%5/5-.5;
+  const v=((x*sn+y*c+phase)%5+5)%5/5-.5;
+  return ditherClamp(Math.sqrt(u*u+v*v)/Math.SQRT1_2,0,1);
+}
+// Núcleos clásicos de difusión; definidos explícitamente para el modo avanzado.
+const DITHER_BAYER2=[[0,2],[3,1]];
+const DITHER_BAYER8=[
+ [0,48,12,60,3,51,15,63],[32,16,44,28,35,19,47,31],
+ [8,56,4,52,11,59,7,55],[40,24,36,20,43,27,39,23],
+ [2,50,14,62,1,49,13,61],[34,18,46,30,33,17,45,29],
+ [10,58,6,54,9,57,5,53],[42,26,38,22,41,25,37,21]
+];
+const DITHER_KERNELS={
+ floyd:{div:16,taps:[[1,0,7],[-1,1,3],[0,1,5],[1,1,1]]},
+ atkinson:{div:8,taps:[[1,0,1],[2,0,1],[-1,1,1],[0,1,1],[1,1,1],[0,2,1]]},
+ jjn:{div:48,taps:[[1,0,7],[2,0,5],[-2,1,3],[-1,1,5],[0,1,7],[1,1,5],[2,1,3],[-2,2,1],[-1,2,3],[0,2,5],[1,2,3],[2,2,1]]},
+ stucki:{div:42,taps:[[1,0,8],[2,0,4],[-2,1,2],[-1,1,4],[0,1,8],[1,1,4],[2,1,2],[-2,2,1],[-1,2,2],[0,2,4],[1,2,2],[2,2,1]]}
+};
+function computeDitherPalette(p,s){
+  const W=p.width,H=p.height;
+  const strength=ditherClamp(s.ditherStrength,0,1);
+  const method=s.ditherMethod;
+  const diffusionMethod = method==='hybrid' ? 'floyd' : method;
+  const diffusion=DITHER_KERNELS[diffusionMethod];
+  const errBuffer=diffusion?Array.from({length:H},()=>new Float32Array(W*3)):null;
+  for(let y=0;y<H;y++){
+    const direction=diffusion && (y&1)?-1:1;
+    for(let x=direction===1?0:W-1;x>=0&&x<W;x+=direction){
+      const px=p.pixels[y][x];if(!px)continue;
+      const raw=ditherRaw(px);
+      let target=raw.slice();
+      if(diffusion){
+        for(let channel=0;channel<3;channel++) target[channel]=ditherClamp(raw[channel]+errBuffer[y][x*3+channel]*strength);
+      } else if(method==='bayer') {
+        for(let channel=0;channel<3;channel++){
+          const th=(DITHER_BAYER8[(y+channel*3)&7][(x+channel*5)&7]+.5)/64-.5;
+          target[channel]=ditherClamp(raw[channel]+th*104*strength);
+        }
+      } else if(method==='halftone'){
+        for(let channel=0;channel<3;channel++){
+          const th=ditherHalftoneThreshold(x,y,channel)-.5;
+          target[channel]=ditherClamp(raw[channel]+th*124*strength);
+        }
+      }
+      let q;
+      let hybridFlat=false, hybridFlatness=0;
+      if(method==='hybrid'){
+        const hybrid=ditherChooseHybrid(p,x,y,target,strength);
+        q=hybrid.choice; hybridFlat=hybrid.flat; hybridFlatness=hybrid.flatness;
+      } else {
+        q=ditherNearest(target);
+      }
+      px.ditherIndex=q.index;px.ditherLum=px.manualLum==null?q.lum:px.manualLum;
+      const emitted=paletteRGB(q.index,px.ditherLum);
+      if(!diffusion)continue;
+      // Propagar solo a posiciones que aun no se han cuantizado.
+      let residual=target.map((v,c)=>v-emitted[c]);
+      // En zonas planas del híbrido, repartir menos error para evitar granulado irregular.
+      if(method==='hybrid' && hybridFlat){
+        residual = residual.map(v=>v*(0.18 + 0.35*(1-hybridFlatness)));
+      }
+      for(const [relX,dy,weight] of diffusion.taps){
+        const xx=x+relX*direction, yy=y+dy;
+        if(xx<0||xx>=W||yy<0||yy>=H||!p.pixels[yy][xx])continue;
+        let factor=1;
+        if(s.ditherEdgeProtect){
+          const near=ditherRaw(p.pixels[yy][xx]);
+          const delta=Math.sqrt((raw[0]-near[0])**2+(raw[1]-near[1])**2+(raw[2]-near[2])**2);
+          factor=ditherClamp((175-delta)/105,0,1);
+        }
+        if(method==='hybrid' && hybridFlat) factor*=0.35;
+        if(factor===0)continue;
+        for(let c=0;c<3;c++)errBuffer[yy][xx*3+c]+=residual[c]*weight/diffusion.div*factor;
+      }
+    }
+  }
+}
+
+
+function refreshRuns() {
+  const p=state.processed; if(!p) return;
+  const settings=getSettings();
+  p.exteriorCleanup=null;
+  if(isSpatial8(settings)) computeSpatialPaletteV1(p,settings);
+  else if(isSpatial2_8(settings)) computeSpatialPaletteV2(p,settings);
+  else if(isSpatial3_8(settings)) computeSpatialPaletteV3(p,settings);
+  else if(isSpatial4_8(settings)) computeSpatialPaletteV4(p,settings);
+  else if(isDither8(settings)) computeDitherPalette(p,settings);
+  p.runs=[];
+  p.visiblePixels=0;
+  for(let y=0;y<p.height;y++) {
+    let x=0;
+    while(x<p.width) {
+      while(x<p.width&&!p.pixels[y][x])x++;
+      if(x>=p.width)break;
+      const start=x,seq=[];
+      while(x<p.width&&p.pixels[y][x]) {seq.push(p.pixels[y][x]);x++;}
+      p.visiblePixels+=seq.length;
+      p.runs.push({y,x:start,seq});
+    }
+  }
+  updateSimulationStats();
+  const status=document.getElementById('exteriorCleanupStats');
+  if(status){
+    if(isSpatial4_8(settings)){
+      const st=p.exteriorCleanup||{removed:0,groups:0,background:'ninguno',maxGroup:0};
+      status.textContent=`Eliminados: ${st.removed} píxeles en ${st.groups} grupos · fondo ${st.background} · tamaño máximo ${st.maxGroup} px`;
+      status.style.color=st.removed?'#98e2b6':'#e4b46d';
+    }else status.textContent='Selecciona Refinada v4 para medir el ruido eliminado.';
+  }
+}
+function updateSimulationStats() {
+  const p=state.processed; if(!p)return;
+  const s=getSettings(),scale=cellScale(s);
+  document.getElementById('statSize').textContent=`${p.width*scale} × ${p.height}`;
+  document.getElementById('statPixels').textContent=String(p.visiblePixels);
+  document.getElementById('statRuns').textContent=String(p.runs.length);
+  document.getElementById('statConsole').textContent=`Muestreo: ${p.width} × ${p.height} píxeles · Consola: ${p.width*scale} columnas × ${p.height} filas · Ancho visual: ${Math.round(p.width*scale*s.consoleCellAspect)} · Relación física: ${s.consoleCellAspect.toFixed(3)}${s.pixelMode==='8b'?' · RGB8: cada paquete ocupa 3 columnas':''}${p.width*scale>280?' · Verifica que la ventana admita este ancho':''}`;
+  document.getElementById('statRGBCalls').textContent=String(p.visiblePixels*s.repeatX);
+  document.getElementById('statRGB8Calls').textContent=String(p.runs.reduce((n,run)=>n+sequenceTokens(run.seq,s.pixelMode,s.repeatX,s.eightStrategy).filter(t=>t.kind==='pack').length,0));
+  document.getElementById('statUnique').textContent=String(isSingleCell8(s)?
+    new Set(p.runs.flatMap(run=>run.seq.map(px=>cellIndexOf(px,s)+'_'+cellLumOf(px,s)))).size:
+    s.pixelMode==='8b'?new Set(p.runs.flatMap(run=>run.seq.flatMap(px=>repeatPalette8(px.palette8,s.repeatX).map(pack=>pack.join('_')+'_'+px.paletteLum)))).size:
+    new Set(p.runs.flatMap(run=>run.seq.map(px=>px.colorIndex+'_'+px.lum))).size);
+}
+function processImage() {
+  if (!state.imageData) return;
+  const s=getSettings(), src=state.imageData;
+  const geo=resolveOutputGeometry(s,src);
+  const logicalW=geo.logicalWidth;
+  const logicalH=geo.height;
+  const tmp=document.createElement('canvas'); tmp.width=logicalW; tmp.height=logicalH;
+  const ctx=tmp.getContext('2d',{willReadFrequently:true});
+  ctx.imageSmoothingEnabled=(s.pixelMode==='8b' && s.smoothDownsample);
+  if(ctx.imageSmoothingEnabled)ctx.imageSmoothingQuality='high';
+  ctx.drawImage(src,0,0,logicalW,logicalH);
+  const data=ctx.getImageData(0,0,logicalW,logicalH).data;
+  let pixels=[],minX=logicalW,minY=logicalH,maxX=-1,maxY=-1,visibleCount=0;
+  for(let y=0;y<logicalH;y++) {
+    const row=[];
+    for(let x=0;x<logicalW;x++) {
+      const i=(y*logicalW+x)*4;
+      let [r,g,b,a]=[data[i],data[i+1],data[i+2],data[i+3]];
+      [r,g,b]=applyToneAdjust(r,g,b,s);
+      const avg=Math.round(0.2126*r + 0.7152*g + 0.0722*b);
+      const visible=a>=s.alphaThreshold&&(!s.omitNearBlack||avg>s.blackThreshold);
+      if(visible) {row.push(createPixel(r,g,b,avg>=s.lumThreshold?1:0,x,y,s));visibleCount++;minX=Math.min(minX,x);maxX=Math.max(maxX,x);minY=Math.min(minY,y);maxY=Math.max(maxY,y);}
+      else row.push(null);
+    }
+    pixels.push(row);
+  }
+  // Preserve frame for manually editable blank canvases; don't crash when blank.
+  if(visibleCount===0 || !s.trimTransparent) {minX=0;minY=0;maxX=logicalW-1;maxY=logicalH-1;}
+  const w=maxX-minX+1,h=maxY-minY+1;
+  const cropped=[];
+  for(let y=minY;y<=maxY;y++)cropped.push(pixels[y].slice(minX,maxX+1));
+  const previous=state.processed;
+  if(previous && (previous.width!==w||previous.height!==h)) {
+    const scaled=new Map();
+    for(const [k,v] of state.overrides) {
+      const [ox,oy]=k.split(':').map(Number);
+      const nx=Math.min(w-1,Math.max(0,Math.round((ox+.5)*w/previous.width-.5)));
+      const ny=Math.min(h-1,Math.max(0,Math.round((oy+.5)*h/previous.height-.5)));
+      scaled.set(nx+':'+ny,v);
+    }
+    state.overrides=scaled; state.undo=[];
+  }
+  for(const [key,value] of state.overrides) {
+    const [x,y]=key.split(':').map(Number);
+    if(x>=0&&y>=0&&x<w&&y<h) {
+      if(value===null) cropped[y][x]=null;
+      else {
+        const painted=createPixel(value.r,value.g,value.b,value.lum,x,y,s);
+        painted.manualLum=value.forceLum??null;
+        cropped[y][x]=painted;
+      }
+    }
+  }
+  state.processed={width:w,height:h,pixels:cropped,visiblePixels:0,runs:[]};
+  refreshRuns();renderQuantPreview();
+}
+
+function renderQuantPreview() {
+  const p=state.processed;if(!p)return;
+  const s=getSettings(),scale=cellScale(s);
+  quantCanvas.width=p.width*scale;
+  quantCanvas.height=p.height;
+  const qctx=quantCanvas.getContext('2d');
+  const image=qctx.createImageData(quantCanvas.width,p.height);
+  for(let y=0;y<p.height;y++) for(let x=0;x<p.width;x++){
+    const px=p.pixels[y][x];
+    const colors=!px?Array(scale).fill(null):
+      s.pixelMode==='3b'?Array(scale).fill(px.colorIndex):
+      isSingleCell8(s)?Array(scale).fill(cellIndexOf(px,s)):
+      px.palette8.flatMap(c=>Array(s.repeatX).fill(c));
+    const activeLum = px ? (s.pixelMode==='8b' ? (isSingleCell8(s)?cellLumOf(px,s):px.paletteLum) : px.lum) : 0;
+    for(let dx=0;dx<scale;dx++){
+      const pos=(y*quantCanvas.width+x*scale+dx)*4;
+      const index=colors[dx];
+      if(index===null){ image.data[pos]=0; image.data[pos+1]=0; image.data[pos+2]=0; image.data[pos+3]=255; }
+      else {
+        const [pr,pg,pb] = paletteRGB(index, activeLum);
+        image.data[pos]=pr;
+        image.data[pos+1]=pg;
+        image.data[pos+2]=pb;
+        image.data[pos+3]=255;
+      }
+    }
+  }
+  qctx.putImageData(image,0,0);
+  const zoom=Number(document.getElementById('zoomPreview').value)||4;
+  // La vista previa imita la proporción REAL de la celda de consola, no píxeles cuadrados.
+  quantCanvas.style.width=(quantCanvas.width*zoom*s.consoleCellAspect)+'px';
+  quantCanvas.style.height=(quantCanvas.height*zoom)+'px';
+}
+
+// Emisión directa para los tres modos: 3b, 8b espacial y 8b mezcla.
+function sequenceTokens(seq,mode,repeatX,eightStrategy,asString=false){
+  const cells=[];
+  for(const px of seq){
+    const single = mode==='8b' && eightStrategy!=='blend';
+    const colors=mode==='8b'?(single?[eightStrategy==='dither'?px.ditherIndex:px.spatialIndex]:px.palette8):[px.colorIndex];
+    const lum=mode==='8b'?(single?(eightStrategy==='dither'?px.ditherLum:px.spatialLum):px.paletteLum):px.lum;
+    for(const index of colors)for(let r=0;r<repeatX;r++)cells.push({index,lum});
+  }
+  const tokens=[];
+  for(let i=0;i<cells.length;){
+    const a=cells[i];
+    if(mode==='8b' && i+2<cells.length && cells[i+1].lum===a.lum && cells[i+2].lum===a.lum){
+      const ids=[cells[i].index,cells[i+1].index,cells[i+2].index];
+      tokens.push({kind:'pack',ids,lum:a.lum});i+=3;
+    } else {
+      tokens.push({kind:'color',index:a.index,lum:a.lum});i++;
+    }
+  }
+  return tokens;
+}
+// Un plan común para PSC y previsualización: el cursor siempre usa columnas REALES.
+// Un pixel 3b mide 1 columna; canvas_getPixelRGB_8 devuelve EXACTAMENTE 3 columnas.
+function buildRenderPlan(p,s){
+  const expansion=cellScale(s);
+  const width=p.width*expansion;
+  const spans=[];
+  for(const run of p.runs){
+    const tokens=sequenceTokens(run.seq,s.pixelMode,s.repeatX,s.eightStrategy);
+    const length=tokens.reduce((n,t)=>n+(t.kind==='pack'?3:1),0);
+    const expected=run.seq.length*expansion;
+    const x=run.x*expansion;
+    if(length!==expected)throw new Error(`RGB: fila ${run.y}, tramo ${run.x}: ${length} columnas generadas en vez de ${expected}`);
+    if(x<0||x+length>width)throw new Error(`RGB: tramo fuera del canvas en y=${run.y}: ${x}..${x+length} de ${width}`);
+    spans.push({x,y:run.y,length,tokens});
+  }
+  const sorted=spans.slice().sort((a,b)=>a.y-b.y||a.x-b.x);
+  let previous=null;
+  for(const row of sorted){
+    if(previous && previous.y===row.y && previous.x+previous.length>row.x){
+      throw new Error(`RGB: franjas superpuestas en y=${row.y}`);
+    }
+    previous=row;
+  }
+  return {width,height:p.height,spans};
+}
+
+function colorExpression(index,lum){
+  return `canvas_getPixelRGB(${index&1?1:0}, ${(index>>1)&1}, ${(index>>2)&1}, ${lum})`;
+}
+function tokenExpression(token){
+  return token.kind==='pack'?`canvas_getPixelRGB_8(${token.ids.join(', ')}, ${token.lum})`:colorExpression(token.index,token.lum);
+}
+function buildRunExpression(seq,mode,repeatX,eightStrategy){
+  return sequenceTokens(seq,mode,repeatX,eightStrategy).map(token=>`franja <- string_append(franja, ${tokenExpression(token)});`);
+}
+
+function psSafe(name) {
+  return name.replace(/[^A-Za-z0-9_]/g, '_');
+}
+
+function chunkArray(arr, size) {
+  const out = [];
+  for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));
+  return out;
+}
+
+function pushTextDeclarations(lines, names, indent = '    ') {
+  if (!names || !names.length) return;
+  for (const chunk of chunkArray(names, 8)) {
+    lines.push(indent + 'Definir ' + chunk.join(', ') + ' Como Texto;');
+  }
+}
+
+function compileAggressiveRuns(plan) {
+  const colorMap=new Map(),packMap=new Map(),lineSpecs=[];
+  function ensureColor(index,lum){
+    const key=`${index}_${lum}`;
+    if(!colorMap.has(key))colorMap.set(key,{varName:`C_${index}_${lum}`,expr:colorExpression(index,lum)});
+    return colorMap.get(key).varName;
+  }
+  function ensurePack(ids,lum){
+    const key=`${ids.join('_')}_${lum}`;
+    if(!packMap.has(key))packMap.set(key,{varName:`P_${ids.join('_')}_${lum}`,expr:`canvas_getPixelRGB_8(${ids.join(', ')}, ${lum})`});
+    return packMap.get(key).varName;
+  }
+  plan.spans.forEach((run,i)=>{
+    const tokens=run.tokens.map(t=>t.kind==='pack'?ensurePack(t.ids,t.lum):ensureColor(t.index,t.lum));
+    lineSpecs.push({x:run.x,y:run.y,varName:`L_${i}`,tokens});
+  });
+  return {colors:Array.from(colorMap.values()),packs:Array.from(packMap.values()),lines:lineSpecs};
+}
+
+
+// Compilación FINAL en JS: no hay llamadas RGB ni concatenaciones en PSeInt.
+// Se usa el mismo orden RGB que canvas_getPixelRGB: 0=negro, 1=rojo,
+// 2=verde, 3=amarillo, 4=azul, 5=magenta, 6=cian, 7=blanco.
+// El ESC se emite como el byte ANSI real 0x1B, igual que symbol_Escape()
+// en las dependencias originales de PseudoLib; no como texto "\\x1b".
+// Un glifo por celda. Solo letras latinas usadas en español/inglés,
+// dígitos y los seis símbolos solicitados. Excluye comillas y otros alfabetos:
+// el archivo .psc es Latin-1 y cada carácter debe ocupar una columna.
+const LATIN_GLYPH_PATTERN=/^[A-Za-z0-9ÁÉÍÓÚÜÑáéíóúüñÀÈÌÒÙàèìòùÂÊÎÔÛâêîôûÄËÏÖäëïöÃÕãõÅåÆæÇçØø#%@¶§]$/u;
+function isValidPixelGlyph(value){return typeof value==='string' && LATIN_GLYPH_PATTERN.test(value);}
+function getPixelGlyph(){
+  const selector=document.getElementById('termGlyph');
+  if(!selector)return '¶';
+  const char=selector.value==='custom'?(document.getElementById('termGlyphCustom')?.value||''):selector.value;
+  return isValidPixelGlyph(char)?char:'¶';
+}
+function runtimeWithGlyph(runtime,glyph){
+  const original='result_pixel = string_append(result_pixel, "¶");';
+  if(!runtime.includes(original))throw new Error('No se encontró el carácter original en canvas_getPixelRGB');
+  return runtime.replace(original,`result_pixel = string_append(result_pixel, "${glyph}");`);
+}
+function compileTerminalRows(plan,glyph='¶'){
+  if(!isValidPixelGlyph(glyph))throw new Error('Símbolo de píxel incompatible con Latin-1');
+  const grouped=Array.from({length:plan.height},()=>[]);
+  for(const span of plan.spans)grouped[span.y].push(span);
+  const ESC='\x1b[';
+  const result=[];
+  for(let y=0;y<grouped.length;y++){
+    const spans=grouped[y].sort((a,b)=>a.x-b.x);
+    if(!spans.length)continue;
+    const firstX=spans[0].x;
+    let currentColumn=firstX;
+    let value='', cells=0, spaces=0, sgrChanges=0;
+    for(const span of spans){
+      const gap=span.x-currentColumn;
+      if(gap<0)throw new Error(`Superposición en fila ${y}: ${gap}`);
+      if(gap){value+=' '.repeat(gap);currentColumn+=gap;spaces+=gap;}
+      for(const token of span.tokens){
+        const colors=token.kind==='pack'?token.ids:[token.index];
+        for(const index of colors){
+          const lum=token.lum;
+          // MISMA representación byte por byte que canvas_getPixelRGB:
+          // ESC[0m (o ESC[1m) + ESC[30..37m + ¶.
+          // No usar ESC[0;33m: PSeInt no necesariamente reconoce SGR combinado.
+          // No depender de que PSeInt conserve el estilo entre caracteres.
+          value+=ESC+(lum?'1':'0')+'m'+ESC+(30+index)+'m'+glyph;
+          sgrChanges+=2;cells++;currentColumn++;
+        }
+      }
+      if(currentColumn!==span.x+span.length)throw new Error(`Longitud incorrecta de franja en fila ${y}`);
+    }
+    if(firstX<0||currentColumn>plan.width)throw new Error(`Fila ${y} fuera de límites`);
+    if(value.includes('"')||value.includes('\n')||value.includes('\r'))throw new Error('Carácter inesperado en fila ANSI');
+    result.push({x:firstX,y,value,cells,spaces,sgrChanges});
+  }
+  return {
+    rows:result,
+    cursorCalls:result.length,
+    printCalls:result.length,
+    colorChanges:result.reduce((a,r)=>a+r.sgrChanges,0),
+    visibleCells:result.reduce((a,r)=>a+r.cells,0),
+    skippedRows:plan.height-result.length,
+    internalSpaces:result.reduce((a,r)=>a+r.spaces,0)
+  };
+}
+
+function generatePSC() {
+  if (!state.processed) return;
+  const p = state.processed;
+  const s = getSettings();
+  if(document.getElementById('termGlyph').value==='custom' &&
+     !isValidPixelGlyph(document.getElementById('termGlyphCustom').value)){
+    alert('Escribe un único carácter latino (español/inglés), un número o # % @ ¶ Ø §.');
+    return;
+  }
+  let plan;
+  try { plan=buildRenderPlan(p,s); }
+  catch(error){ alert('Error de geometría RGB: '+error.message); return; }
+  const lines = [];
+  lines.push('// Generado por PseudoLib Image Generator');
+  lines.push('// Imagen cuantizada a RGB binario (0..7) + luminancia');
+  lines.push('// Modo seleccionado: ' + (s.optAggressive ? (s.pixelMode==='8b'?'RGB8':'RGB3') + ' compilado en cadenas ANSI (sin calculos RGB en PSeInt)' : (s.pixelMode === '8b' ? 'canvas_getPixelRGB_8' : 'canvas_getPixelRGB')));
+  lines.push('// RGB_8: ' + (s.eightStrategy==='spatial'?'refinada v1 original con luminancia independiente':(s.eightStrategy==='spatial2'?'refinada v2: limpieza cromatica guiada por luminancia (sin destruir relieve)':(s.eightStrategy==='spatial3'?'refinada v3: limpieza + detalle en bordes, nitidez '+Math.round(s.spatial3Detail*100)+'%':(s.eightStrategy==='spatial4'?'refinada v4: detalle v3 + limpieza exterior '+Math.round(s.spatial4Isolated*100)+'%':(s.eightStrategy==='dither'?'tramado '+s.ditherMethod:'mezcla de 3 colores por pixel de origen'))))) + '.');
+  lines.push('// Estrategia: ' + (s.optAggressive ? 'filas con ANSI totalmente compilado en JavaScript, una escritura por fila' : 'generacion directa original por franjas (comparacion)'));
+  lines.push('// Canvas final: ' + plan.width + ' x ' + plan.height);
+  lines.push('// Celda física de consola ancho/alto: ' + s.consoleCellAspect.toFixed(6) + ' (calibración visual)');
+  lines.push('// Matriz logica de muestreo: ' + p.width + ' x ' + p.height);
+  lines.push('// Indice de color: R + 2*G + 4*B; orden en _8 corregido.');
+  lines.push('// RGB8: cada paquete representa 3 celdas visibles. Posiciones calculadas en columnas y validadas sin superposiciones.');
+  lines.push('// Ancho terminal: ' + plan.width + ', repeticiones por celda: x' + s.repeatX);
+  lines.push('// Carácter visual de cada celda: ' + s.pixelGlyph);
+  if (isBlend8(s)) lines.push('// 8b clásico: anchura interpretada como ' + (blendUsesLogicalWidth(s)?'muestreo lógico (más detalle)':'ancho final de consola'));
+  lines.push('');
+  lines.push(runtimeWithGlyph(s.pixelMode === '8b' ? runtime8b : runtime3b,s.pixelGlyph).trim());
+  lines.push('');
+  lines.push('Funcion ' + s.fnName);
+
+  if (s.optAggressive) {
+    // Generación real por filas: JavaScript produce cada literal completo.
+    const compiled=compileTerminalRows(plan,s.pixelGlyph);
+    lines.push('// Filas compiladas: ' + compiled.rows.length + ' de ' + plan.height);
+    lines.push('// Render: ' + compiled.cursorCalls + ' posiciones de cursor, ' + compiled.printCalls + ' escrituras.');
+    lines.push('// Celdas: ' + compiled.visibleCells + ', espacios internos: ' + compiled.internalSpaces + ', secuencias ANSI: ' + compiled.colorChanges);
+    lines.push('// Cada celda contiene ESC[0m/ESC[1m + ESC[3Xm + ' + s.pixelGlyph + ' (igual que canvas_getPixelRGB).');
+    lines.push('    Definir canvas Como Texto;');
+    lines.push('    Definir ancho, alto Como Entero;');
+    lines.push('');
+    lines.push('    ancho <- ' + plan.width + ';');
+    lines.push('    alto <- ' + plan.height + ';');
+    lines.push('');
+    lines.push('    canvas <- canvas_new_withPixel(ancho, alto, " ");');
+    lines.push('    canvas <- canvas_drawPoint(canvas, ancho, alto, ancho - 1, alto - 1);');
+    lines.push('    canvas_display(canvas, ancho, alto);');
+    lines.push('    user_input_wait();');
+    lines.push('    clearConsole();');
+    lines.push('    canvas <- canvas_drawPoint_withPixel(canvas, ancho, alto, ancho - 1, alto - 1, " ");');
+    lines.push('    canvas_display(canvas, ancho, alto);');
+    lines.push('');
+    lines.push('    // Una única escritura por fila con contenido; ANSI y '+s.pixelGlyph+' compilados en JS.');
+    for(const row of compiled.rows){
+      lines.push('    console_setCursor(' + row.x + ', ' + row.y + ');');
+      lines.push('    Escribir Sin Saltar "' + row.value + '";');
+    }
+    lines.push('');
+  } else {
+    lines.push('    Definir canvas, franja Como Texto;');
+    lines.push('    Definir ancho, alto Como Entero;');
+    lines.push('');
+    lines.push('    ancho <- ' + plan.width + ';');
+    lines.push('    alto <- ' + plan.height + ';');
+    lines.push('');
+    lines.push('    canvas <- canvas_new_withPixel(ancho, alto, " ");');
+    lines.push('    canvas <- canvas_drawPoint(canvas, ancho, alto, ancho - 1, alto - 1);');
+    lines.push('    canvas_display(canvas, ancho, alto);');
+    lines.push('    user_input_wait();');
+    lines.push('    clearConsole();');
+    lines.push('    canvas <- canvas_drawPoint_withPixel(canvas, ancho, alto, ancho - 1, alto - 1, " ");');
+    lines.push('    canvas_display(canvas, ancho, alto);');
+    lines.push('');
+    for (const run of plan.spans) {
+      lines.push('    franja <- "";');
+      for (const token of run.tokens) lines.push('    franja <- string_append(franja, ' + tokenExpression(token) + ');');
+      lines.push('    console_setCursor(' + run.x + ', ' + run.y + ');');
+      lines.push('    Escribir Sin Saltar franja;');
+      lines.push('');
+    }
+  }
+
+  if (s.addFinalWait) lines.push('    user_input_wait();');
+  lines.push('FinFuncion');
+  if (s.addMain) {
+    lines.push('');
+    lines.push('Proceso Principal');
+    lines.push('    ' + s.fnName + ';');
+    lines.push('FinProceso');
+  }
+  state.code = lines.join('\n');
+  output.value = state.code;
+  state.generated=true;
+  setGenerationState(true);
+}
+
+function ensureLatestCode() {
+  return state.generated ? output.value : '';
+}
+function setGenerationState(ready) {
+  const status=document.getElementById('generationStatus');
+  for(const id of ['downloadBtn','txtBtn','copyBtn']) document.getElementById(id).disabled=!ready;
+  status.className='status '+(ready?'ready':'pending');
+  status.textContent=ready?'Código generado. Puedes exportar o copiar.':'La simulación cambió. Pulsa «Generar resultado» para actualizar el código.';
+}
+function markDirty() {
+  state.generated=false; state.code='';
+  output.value='';
+  setGenerationState(false);
+}
+
+// La fuente PseudoLib.psc está codificada como Latin-1 (ANSI).
+// Al guardar como PSC preservamos cada carácter gráfico en un solo byte.
+function toLatin1(str) {
+  const bytes = new Uint8Array(str.length);
+  for (let i=0; i<str.length; i++) {
+    const code = str.charCodeAt(i);
+    bytes[i] = code <= 255 ? code : 63;
+  }
+  return bytes;
+}
+
+function downloadCode(ext) {
+  const code = ensureLatestCode();
+  if (!code) return;
+  const fn = sanitizeFunctionName(document.getElementById('fnName').value || 'ImagenGenerada');
+  const blob = ext === 'psc' ? new Blob([toLatin1(code)], {type:'application/octet-stream'}) : new Blob([code], { type:'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = fn + '.' + ext;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 5000);
+}
+
+async function copyCode() {
+  const code = ensureLatestCode();
+  if (!code) return;
+  const status = document.getElementById('copyStatus');
+  try {
+    await navigator.clipboard.writeText(code);
+    status.textContent = 'Código copiado al portapapeles.';
+  } catch (e) {
+    // Archivos HTML abiertos localmente pueden no tener acceso a navigator.clipboard.
+    output.focus();
+    output.select();
+    try {
+      if (!document.execCommand('copy')) throw new Error('Copy was rejected');
+      status.textContent = 'Código copiado al portapapeles.';
+    } catch (ignored) {
+      status.textContent = 'Código seleccionado; presiona Ctrl+C para copiarlo.';
+    }
+  }
+}
+
+function calcDefaultOutputSize() {
+  const img=state.imageData;
+  if(!img)return {w:150,h:150};
+  const scale=Math.min(1,150/img.width,150/img.height);
+  return {w:Math.max(1,Math.round(img.width*scale)),h:Math.max(1,Math.round(img.height*scale))};
+}
+function setOutputSize(w,h) {
+  document.getElementById('targetW').value=Math.max(1,Math.round(w));
+  document.getElementById('targetH').value=Math.max(1,Math.round(h));
+}
+function updateSizeFromInput(axis) {
+  if(!state.imageData)return;
+  const wEl=document.getElementById('targetW'),hEl=document.getElementById('targetH');
+  let w=Math.max(1,Math.round(Number(wEl.value)||1));
+  let h=Math.max(1,Math.round(Number(hEl.value)||1));
+  if(document.getElementById('lockAspect').checked) {
+    const ratio=state.imageData.width/state.imageData.height;
+    if(axis==='w') h=Math.max(1,Math.round(w/ratio));
+    else w=Math.max(1,Math.round(h*ratio));
+  }
+  setOutputSize(w,h);
+  liveUpdate();
+}
+function liveUpdate() { if(!state.imageData)return; processImage();markDirty(); }
+function hexToRGB(hex) { return {r:parseInt(hex.slice(1,3),16),g:parseInt(hex.slice(3,5),16),b:parseInt(hex.slice(5,7),16)}; }
+function logicalCoords(e) {
+  const p=state.processed;if(!p)return null;
+  const rect=quantCanvas.getBoundingClientRect(),scale=cellScale(getSettings());
+  const fx=(e.clientX-rect.left)*quantCanvas.width/rect.width;
+  const fy=(e.clientY-rect.top)*quantCanvas.height/rect.height;
+  const x=Math.floor(fx/scale),y=Math.floor(fy);
+  return x>=0&&y>=0&&x<p.width&&y<p.height?{x,y}:null;
+}
+function applyTool(e) {
+  const point=logicalCoords(e);if(!point)return;
+  const tool=document.getElementById('paintTool').value,p=state.processed;
+  if(tool==='pick') {
+    const picked=p.pixels[point.y][point.x];
+    if(picked) {
+      document.getElementById('paintColor').value='#'+[picked.rawR,picked.rawG,picked.rawB].map(n=>n.toString(16).padStart(2,'0')).join('');
+      document.getElementById('paintLum').value=String(picked.lum);
+      document.getElementById('paintTool').value='paint';
+    }
+    return;
+  }
+  const brush=Math.max(1,Math.min(8,Number(document.getElementById('brushSize').value)||1));
+  const color=hexToRGB(document.getElementById('paintColor').value);
+  const lumSetting=document.getElementById('paintLum').value;
+  const lum=lumSetting==='auto'?((0.2126*color.r+0.7152*color.g+0.0722*color.b)>=getSettings().lumThreshold?1:0):Number(lumSetting);
+  const value=tool==='erase'?null:{...color,lum,forceLum:lumSetting==='auto'?null:Number(lumSetting)};
+  let touched=false;
+  const start=-Math.floor((brush-1)/2),end=start+brush;
+  for(let dy=start;dy<end;dy++)for(let dx=start;dx<end;dx++){
+    const x=point.x+dx,y=point.y+dy;
+    if(x<0||y<0||x>=p.width||y>=p.height)continue;
+    state.overrides.set(x+':'+y,value);
+    if(value===null)p.pixels[y][x]=null;
+    else {
+      const painted=createPixel(value.r,value.g,value.b,value.lum,x,y,getSettings());
+      painted.manualLum=value.forceLum;
+      p.pixels[y][x]=painted;
+    }
+    touched=true;
+  }
+  if(touched) {refreshRuns();renderQuantPreview();markDirty();}
+}
+quantCanvas.addEventListener('pointerdown',e=>{
+  if(!state.processed)return;
+  if(document.getElementById('paintTool').value==='pick'){applyTool(e);return;}
+  state.strokeSnapshot=new Map(state.overrides);
+  state.drawing=true;
+  quantCanvas.setPointerCapture(e.pointerId);
+  applyTool(e);
+});
+quantCanvas.addEventListener('pointermove',e=>{if(state.drawing)applyTool(e);});
+function finishStroke(){
+  if(!state.drawing)return;
+  state.drawing=false;
+  if(state.strokeSnapshot){state.undo.push(state.strokeSnapshot);if(state.undo.length>30)state.undo.shift();}
+  state.strokeSnapshot=null;
+}
+quantCanvas.addEventListener('pointerup',finishStroke);
+quantCanvas.addEventListener('pointercancel',finishStroke);
+document.getElementById('undoBtn').addEventListener('click',()=>{
+  if(!state.undo.length)return;
+  state.overrides=state.undo.pop();liveUpdate();
+});
+document.getElementById('resetEditsBtn').addEventListener('click',()=>{
+  state.overrides.clear();state.undo=[];liveUpdate();
+});
+fileInput.addEventListener('change',async e=>{
+  const file=e.target.files?.[0];if(!file)return;
+  try{
+    const img=await loadImageFromFile(file);
+    state.imageData=img;state.overrides=new Map();state.undo=[];
+    drawToCanvas(img);
+    document.getElementById('originalSize').textContent=`${img.width} × ${img.height} · ${file.name}`;
+    const d=calcDefaultOutputSize();setOutputSize(d.w,d.h);
+    processImage();markDirty();
+  }catch(error){alert('No se pudo cargar la imagen: '+error.message);}
+});
+for(const id of ['pixelMode','eightStrategy','ditherAmount','spatial2Strength','spatial3Detail','spatial4Isolated','ditherMethod','ditherStrength','ditherEdgeProtect','smoothDownsample','repeatX','rgbThreshold','lumThreshold','brightnessAdjust','gammaAdjust','alphaThreshold','blackThreshold','trimTransparent','omitNearBlack']) {
+  const element=document.getElementById(id);
+  element.addEventListener('input',()=>{
+    if(id.includes('Threshold')) document.getElementById(id+'Value').textContent=String(element.value);
+    if(id==='ditherAmount')document.getElementById('ditherAmountValue').textContent=element.value+' %';
+    if(id==='spatial2Strength')document.getElementById('spatial2StrengthValue').textContent=element.value+' %';
+    if(id==='spatial3Detail')document.getElementById('spatial3DetailValue').textContent=element.value+' %';
+    if(id==='spatial4Isolated')document.getElementById('spatial4IsolatedValue').textContent=element.value+' %';
+    if(id==='ditherStrength')document.getElementById('ditherStrengthValue').textContent=element.value+' %';
+    liveUpdate();
+  });
+}
+function refreshDitherOptions(){
+  const is8b=document.getElementById('pixelMode').value==='8b';
+  const strategy=document.getElementById('eightStrategy').value;
+  document.getElementById('ditherOptions').style.display=(is8b&&strategy==='dither')?'grid':'none';
+  document.getElementById('refinedV2Options').style.display=(is8b&&(strategy==='spatial2'||strategy==='spatial3'||strategy==='spatial4'))?'grid':'none';
+  document.getElementById('refinedV3DetailOptions').style.display=(is8b&&(strategy==='spatial3'||strategy==='spatial4'))?'grid':'none';
+  document.getElementById('refinedV4Options').style.display=(is8b&&strategy==='spatial4')?'grid':'none';
+}
+document.getElementById('pixelMode').addEventListener('change',refreshDitherOptions);
+document.getElementById('eightStrategy').addEventListener('change',refreshDitherOptions);
+refreshDitherOptions();
+for(const axis of ['W','H']) document.getElementById('target'+axis).addEventListener('input',()=>updateSizeFromInput(axis.toLowerCase()));
+document.getElementById('autoSizeBtn').addEventListener('click',()=>{
+  if(!state.imageData)return;
+  const d=calcDefaultOutputSize();setOutputSize(d.w,d.h);liveUpdate();
+});
+document.getElementById('zoomPreview').addEventListener('change',()=>{if(window.PseudoLibStudio)window.PseudoLibStudio.setZoom(Number(document.getElementById('zoomPreview').value));});
+document.getElementById('blendWidthMode').addEventListener('change',liveUpdate);
+document.getElementById('consoleCellAspect').addEventListener('input',liveUpdate);
+document.getElementById('lockAspect').addEventListener('change',liveUpdate);
+for(const id of ['fnName','optAggressive','addMain','addFinalWait']) document.getElementById(id).addEventListener('input',()=>{if(state.imageData)markDirty();});
+document.getElementById('generateBtn').addEventListener('click',()=>{
+  if(!state.imageData){alert('Primero selecciona una imagen.');return;}
+  generatePSC();
+});
+document.getElementById('downloadBtn').addEventListener('click',()=>downloadCode('psc'));
+document.getElementById('txtBtn').addEventListener('click',()=>downloadCode('txt'));
+document.getElementById('copyBtn').addEventListener('click',copyCode);
+output.value='';
+setGenerationState(false);
+function bindRangeLabel(inputId,labelId,fmt){
+  const el=document.getElementById(inputId), lab=document.getElementById(labelId);
+  if(!el||!lab)return; const paint=()=>lab.textContent=fmt?fmt(Number(el.value)):String(el.value); el.addEventListener('input',paint); paint();
+}
+bindRangeLabel('rgbThreshold','rgbThresholdValue');
+bindRangeLabel('lumThreshold','lumThresholdValue');
+bindRangeLabel('alphaThreshold','alphaThresholdValue');
+bindRangeLabel('blackThreshold','blackThresholdValue');
+bindRangeLabel('brightnessAdjust','brightnessAdjustValue',v=>v+' %');
+bindRangeLabel('gammaAdjust','gammaAdjustValue',v=>(v/100).toFixed(2));
+</script>
+<style id="studio-glyph-ui">
+  #termGlyphCustomBox[hidden],#termGlyphWarning[hidden]{display:none!important}
+  #termGlyphCustom{width:36px;min-width:36px;text-align:center;font-family:Consolas,'Courier New',monospace;font-size:14px}
+  #termGlyphWarning{color:#e7b877;font-size:11px}
+  .terminal-toolbar select#termGlyph{min-width:105px;max-width:140px}
+</style>
+<script id="studio-ui">
+(function(){
+  'use strict';
+  const $=id=>document.getElementById(id);
+  const origMain=document.querySelector('main.wrap');
+  const shell=document.createElement('div');
+  shell.className='studio';
+  shell.innerHTML=`
+    <div class="studio-titlebar">
+      <div class="studio-logo"><span>▧</span> PseudoLib Studio</div>
+      <div class="studio-menu">
+        <button id="studioOpen" type="button" title="Cargar imagen">Archivo</button>
+        <button id="studioSettings" type="button" title="Mostrar configuración">Ajustes</button>
+        <button id="studioPreview" type="button" title="Alternar tamaño del visor">Vista</button>
+      </div>
+      <div class="bar-actions"><span class="studio-mini-stats" id="quickStats"><b>Sin imagen</b></span><div id="generateSlot"></div></div>
+    </div>
+    <div class="studio-content" id="studioContent">
+      <nav class="activity-rail" aria-label="Actividad">
+        <button type="button" id="activitySettings" class="selected" title="Configuración y herramientas">⚙</button>
+        <button type="button" id="activityFile" title="Cargar archivo">▤</button>
+        <button type="button" id="activityPreview" title="Vista consola">▣</button>
+        <button type="button" id="activityCode" title="Ver código PSeInt">⌘</button>
+        <div class="activity-bottom"><button type="button" id="activityHelp" title="Información del visor">ⓘ</button></div>
+      </nav>
+      <aside class="studio-sidebar" id="studioSidebar"><div class="sidebar-head">EXPLORADOR Y AJUSTES <button type="button" id="studioSideToggle" class="secondary" title="Ocultar explorador">×</button></div><div class="sidebar-inner" id="sidebarInner"><div id="inputDropzone"><strong>⊕ Abrir imagen</strong><span>Suelta aquí PNG / JPG / WebP</span><div id="studioFileSlot"></div></div></div></aside>
+      <div class="workspace" id="studioWorkspace">
+        <section class="workspace-pane" id="visualPane">
+          <div class="editor-tabs" role="tablist" aria-label="Vistas previas">
+            <button type="button" class="editor-tab active" data-studioview="console" role="tab" aria-selected="true">▣ Consola PSeInt</button>
+            <button type="button" class="editor-tab" data-studioview="pixels" role="tab" aria-selected="false">▦ Píxeles</button>
+            <button type="button" class="editor-tab" data-studioview="original" role="tab" aria-selected="false">▧ Original</button>
+            <div class="tab-spacer"></div>
+            <div class="inline-zoom" id="previewZoomBar" title="Ctrl + rueda: zoom en el cursor · Rueda central o Espacio + arrastrar: desplazar">
+              <button type="button" class="tiny-action" id="zoomOutBtn" title="Alejar (÷1,4)">−</button>
+              <input type="number" id="zoomValue" min="0.1" max="64" value="1" step="0.1" aria-label="Zoom de la vista actual">
+              <span class="zoom-unit">×</span>
+              <button type="button" class="tiny-action" id="zoomInBtn" title="Acercar (×1,4)">+</button>
+              <button type="button" class="tiny-action" id="zoomResetBtn" title="Escala 1:1">1:1</button>
+              <button type="button" class="tiny-action" id="zoomFitBtn" title="Ajustar imagen a la ventana">Ajustar</button>
+              <button type="button" class="tiny-action" id="toggleVisualBody" title="Ocultar o mostrar visor">▼</button>
+            </div>
+            <button type="button" class="tiny-action" id="maxPreview" title="Maximizar o restaurar visor">□</button>
+          </div>
+          <div class="studio-previewbody" id="previewBody"><div id="consoleTextPane">
+            <div class="terminal-toolbar"><span class="term-name">PSeInt · Consola simulada</span>
+              <label>Símbolo <select id="termGlyph" title="Símbolo utilizado en el PSC y la vista Consola">
+                <option value="¶" selected>¶</option><option value="#">#</option><option value="%">%</option>
+                <option value="@">@</option><option value="Ø">Ø</option><option value="§">§</option>
+                <option value="custom">Personalizado…</option>
+              </select></label>
+              <label id="termGlyphCustomBox" hidden>Letra <input type="text" id="termGlyphCustom" maxlength="1" value="A" aria-label="Carácter personalizado" title="Solo un carácter español/inglés o símbolo compatible con Latin-1" spellcheck="false" autocomplete="off"></label>
+              <span id="termGlyphWarning" role="status" hidden>Usa una letra latina, número o # % @ ¶ Ø §.</span>
+              <label>Fuente base <input type="range" min="6" max="48" step="1" id="termFontSize" value="11"><span id="termFontLabel">11 px</span></label>
+            </div>
+            <div class="terminal-scroll"><div id="consoleEmpty">Abre una imagen para visualizar los caracteres realmente generados.<br>La previsualización usa los mismos índices de color y luminancia que la salida PSC.</div><div id="consoleZoomStage"><pre id="consoleTextPreview" aria-label="Simulación en texto coloreado de PSeInt" hidden></pre></div></div>
+            <div class="console-pane-help">Color ANSI aproximado · El símbolo elegido se exporta al PSC · Una columna por carácter · No se admiten emojis ni alfabetos fuera de español/inglés.</div>
+          </div><div id="previewMount"></div></div>
+        </section>
+        <section class="workspace-pane code-pane" id="codePane">
+          <div class="editor-tabs"><button type="button" class="editor-tab active">▤ PseudoLibLogo.psc</button><div class="tab-spacer"></div><button type="button" class="tiny-action" id="maxCode" title="Maximizar o restaurar código">□</button></div>
+          <div class="code-body" id="codeMount"></div>
+        </section>
+      </div>
+    </div>
+    <footer class="studio-statusbar"><div class="status-group"><span>● PseudoLib</span><span id="studioMode">RGB8 · Refinada v4</span></div><div class="status-group"><span id="studioDimensions">Sin imagen</span><span>PSeInt · PSC</span><span>Offline</span></div></footer>`;
+  document.body.insertBefore(shell,origMain);
+  $('sidebarInner').appendChild($('settingsSection'));
+  // Descripciones extensas plegadas: controles visibles, explicación bajo demanda.
+  document.querySelectorAll('#settingsSection .subpanel > .note').forEach(note=>{
+    if(note.textContent.trim().length<95) return;
+    const details=document.createElement('details');details.className='studio-info';
+    const summary=document.createElement('summary');summary.textContent='Detalles técnicos';
+    note.before(details);details.append(summary,note);
+  });
+  $('previewMount').appendChild($('previewSection'));
+  $('codeMount').appendChild($('resultSection'));
+  $('studioFileSlot').appendChild($('fileInput'));
+  $('generateSlot').appendChild($('generateBtn'));
+  const output=$('output');
+  const gutter=document.createElement('pre');gutter.className='code-gutter';gutter.id='codeGutter';gutter.setAttribute('aria-hidden','true');
+  const codeEditor=document.createElement('div');codeEditor.className='code-editor';
+  output.before(codeEditor);codeEditor.appendChild(gutter);codeEditor.appendChild(output);
+  // Mantener todas las referencias y listeners originales, que siguen apuntando a los mismos nodos.
+  function updateGutter(){const count=(output.value.match(/\n/g)||[]).length+1;gutter.textContent=Array.from({length:Math.min(count,25000)},(_,i)=>i+1).join('\n');}
+  output.addEventListener('input',updateGutter);
+  output.addEventListener('scroll',()=>{gutter.scrollTop=output.scrollTop;});
+  // La descarga actualiza el contenido con .value; revisar con un observer ligero en generación.
+  $('generateBtn').addEventListener('click',()=>setTimeout(updateGutter,0));
+  updateGutter();
+  const originalBox=$('origCanvas').closest('.cvbox');
+  const quantBox=$('quantCanvas').closest('.cvbox');
+  const previewSection=$('previewSection');
+  $('previewBody').appendChild(previewSection);
+  const canvasPreviews=previewSection.querySelector('.previews');
+  const textPane=$('consoleTextPane');
+  // Texto verdadero: una columna de terminal = un glifo ¶ con un índice de paleta y luminancia.
+  let currentView='console', textFrame=0, lastSource=null;
+  // Cada pestaña recuerda su zoom; cambiar de original a píxeles no altera la escala.
+  const zoomByView={console:1,pixels:4,original:1};
+  const MIN_ZOOM=0.1, MAX_ZOOM=64;
+  const clampZoom=n=>Math.max(MIN_ZOOM,Math.min(MAX_ZOOM,Number.isFinite(n)?n:1));
+  function activeScroller(){
+    if(currentView==='console')return $('consoleTextPane').querySelector('.terminal-scroll');
+    if(currentView==='pixels')return $('quantWrap');
+    return $('origCanvas').parentElement;
+  }
+  function syncPreviewZoomUI(){
+    const z=zoomByView[currentView];
+    $('zoomValue').value=String(Number(z.toFixed(3)));
+    $('zoomPreview').value=String(Number(z.toFixed(3)));
+  }
+  function applyTextZoom(){
+    const pre=$('consoleTextPreview'),stage=$('consoleZoomStage');
+    if(pre.hidden || !pre.offsetWidth)return;
+    const z=zoomByView.console;
+    // Transformamos el glifo, no reconstruimos las filas: zoom rápido y sin reclasificar colores.
+    const w=pre.offsetWidth,h=pre.offsetHeight;
+    stage.style.width=Math.ceil(w*z)+'px';
+    stage.style.height=Math.ceil(h*z)+'px';
+    pre.style.transform='scale('+z+')';
+  }
+  function applyOriginalZoom(){
+    const cv=$('origCanvas');
+    if(!cv.width||!cv.height)return;
+    const z=zoomByView.original;
+    cv.style.width=Math.max(.1,cv.width*z)+'px';
+    cv.style.height=Math.max(.1,cv.height*z)+'px';
+  }
+  function applyViewZoom(){
+    if(currentView==='console')applyTextZoom();
+    else if(currentView==='pixels'){if(state.processed)renderQuantPreview();}
+    else applyOriginalZoom();
+  }
+  function setZoom(value,point){
+    const old=zoomByView[currentView],z=clampZoom(Number(value));
+    if(!Number.isFinite(Number(value)))return;
+    const el=activeScroller(),r=el.getBoundingClientRect();
+    const x=point?point.clientX-r.left:el.clientWidth/2;
+    const y=point?point.clientY-r.top:el.clientHeight/2;
+    const beforeX=el.scrollLeft+x,beforeY=el.scrollTop+y;
+    zoomByView[currentView]=z;
+    syncPreviewZoomUI();applyViewZoom();
+    // Mantiene el punto bajo el cursor al ampliar o reducir.
+    const ratio=z/old;
+    el.scrollLeft=Math.max(0,beforeX*ratio-x);
+    el.scrollTop=Math.max(0,beforeY*ratio-y);
+  }
+  function fitZoom(){
+    let w=0,h=0;
+    if(currentView==='console'){w=$('consoleTextPreview').offsetWidth;h=$('consoleTextPreview').offsetHeight;}
+    else if(currentView==='pixels'){w=$('quantCanvas').width*getSettings().consoleCellAspect;h=$('quantCanvas').height;}
+    else{w=$('origCanvas').width;h=$('origCanvas').height;}
+    if(!(w>0&&h>0))return;
+    const el=activeScroller();
+    const z=Math.min((el.clientWidth-44)/w,(el.clientHeight-44)/h);
+    setZoom(clampZoom(z));
+    el.scrollLeft=0;el.scrollTop=0;
+  }
+  function updateTextPreview(){
+    if(currentView!=='console')return;
+    const p=state.processed;
+    if(!p){ $('consoleEmpty').hidden=false;$('consoleTextPreview').hidden=true;return; }
+    const s=getSettings();
+    const scale=cellScale(s), glyph=s.pixelGlyph;
+    // Los píxeles null ocupan un espacio negro dentro de la matriz.
+    const root=document.createDocumentFragment();
+    const fgCache=new Map();
+    function fg(index,lum){ const k=index+'_'+lum; if(!fgCache.has(k)){
+      const c=paletteRGB(index,lum); fgCache.set(k,'rgb('+c.join(',')+')');
+    }return fgCache.get(k); }
+    for(let y=0;y<p.height;y++){
+      const row=document.createElement('span');row.className='term-row';
+      let color='',buffer='';
+      const flush=()=>{if(!buffer)return;const span=document.createElement('span');span.className='term-run';if(color)span.style.color=color;span.textContent=buffer;row.appendChild(span);buffer='';};
+      const cell=(index,lum)=>{const next=index===null?'':fg(index,lum);if(next!==color){flush();color=next;}buffer+=index===null?' ':glyph;};
+      for(let x=0;x<p.width;x++){
+        const px=p.pixels[y][x];
+        if(!px){for(let n=0;n<scale;n++)cell(null,0);continue;}
+        if(s.pixelMode==='3b'){for(let n=0;n<scale;n++)cell(px.colorIndex,px.lum);}
+        else if(isSingleCell8(s)){for(let n=0;n<scale;n++)cell(cellIndexOf(px,s),cellLumOf(px,s));}
+        else {for(const index of px.palette8)for(let n=0;n<s.repeatX;n++)cell(index,px.paletteLum);}
+      }
+      flush();root.appendChild(row);
+    }
+    const pre=$('consoleTextPreview');pre.replaceChildren(root);pre.hidden=false;$('consoleEmpty').hidden=true;
+    applyTextZoom();
+    $('studioDimensions').textContent=(p.width*scale)+' col × '+p.height+' filas';
+    $('quickStats').innerHTML='<b>'+(p.width*scale)+'×'+p.height+'</b> · '+p.visiblePixels+' píxeles';
+    $('studioMode').textContent=s.pixelMode.toUpperCase()+' · '+$('eightStrategy').selectedOptions[0].textContent.split(' — ')[0];
+    // Primera carga de cada archivo: mostrar el encuadre completo automáticamente.
+    if(state.imageData && lastSource!==state.imageData){
+      lastSource=state.imageData;
+      if(currentView==='console')fitZoom();
+    }
+  }
+  function scheduleTextPreview(){if(textFrame)cancelAnimationFrame(textFrame);textFrame=requestAnimationFrame(()=>{textFrame=0;updateTextPreview();});}
+  const baseRender=renderQuantPreview;
+  renderQuantPreview=function(){baseRender();scheduleTextPreview();};
+  // Operaciones de pintado, recálculo de paleta y cambios de parámetros van al mismo render.
+  const baseRefresh=refreshRuns;
+  refreshRuns=function(){baseRefresh();scheduleTextPreview();};
+  function selectView(view){
+    currentView=view;
+    document.querySelectorAll('[data-studioview]').forEach(btn=>{
+      const active=btn.dataset.studioview===view;btn.classList.toggle('active',active);btn.setAttribute('aria-selected',String(active));
+    });
+    textPane.hidden=view!=='console';
+    originalBox.classList.toggle('visible',view==='original');
+    quantBox.classList.toggle('visible',view==='pixels');
+    canvasPreviews.style.display=view==='console'?'none':'grid';
+    previewSection.style.display=view==='console'?'none':'flex';
+    syncPreviewZoomUI();
+    if(view==='console')scheduleTextPreview();
+    else applyViewZoom();
+  }
+  document.querySelectorAll('[data-studioview]').forEach(btn=>btn.addEventListener('click',()=>selectView(btn.dataset.studioview)));
+  const content=$('studioContent'),workspace=$('studioWorkspace');
+  function toggleSidebar(force){const close=force===undefined?!content.classList.contains('sidebar-closed'):!force;content.classList.toggle('sidebar-closed',close);$('activitySettings').classList.toggle('selected',!close);}
+  $('studioSideToggle').addEventListener('click',()=>toggleSidebar(false));
+  $('activitySettings').addEventListener('click',()=>toggleSidebar());
+  $('studioSettings').addEventListener('click',()=>toggleSidebar(true));
+  $('activityFile').addEventListener('click',()=>$('fileInput').click());
+  $('studioOpen').addEventListener('click',()=>$('fileInput').click());
+  $('activityPreview').addEventListener('click',()=>{selectView('console');workspace.classList.remove('code-max');});
+  $('activityCode').addEventListener('click',()=>{workspace.classList.toggle('code-max');workspace.classList.remove('preview-max');});
+  $('studioPreview').addEventListener('click',()=>{workspace.classList.toggle('preview-max');workspace.classList.remove('code-max');});
+  $('maxPreview').addEventListener('click',()=>{workspace.classList.toggle('preview-max');workspace.classList.remove('code-max');});
+  $('maxCode').addEventListener('click',()=>{workspace.classList.toggle('code-max');workspace.classList.remove('preview-max');});
+  $('activityHelp').addEventListener('click',()=>alert('PseudoLib Studio · Sin conexión.\nConsola: muestra el símbolo seleccionado y los colores de canvas_getPixelRGB, igual que el PSC.\nPíxeles: edición directa con pincel, borrador y cuentagotas.\nEl PSC se genera únicamente con el botón Generar resultado.'));
+  const drop=$('inputDropzone');
+  drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('drag');});
+  drop.addEventListener('dragleave',()=>drop.classList.remove('drag'));
+  drop.addEventListener('drop',e=>{
+    e.preventDefault();drop.classList.remove('drag');
+    const f=Array.from(e.dataTransfer.files).find(f=>f.type.startsWith('image/'));
+    if(!f)return;
+    const dt=new DataTransfer();dt.items.add(f);$('fileInput').files=dt.files;$('fileInput').dispatchEvent(new Event('change',{bubbles:true}));
+  });
+  function updateGlyphSelection(){
+    const custom=$('termGlyph').value==='custom';
+    $('termGlyphCustomBox').hidden=!custom;
+    const valid=!custom||isValidPixelGlyph($('termGlyphCustom').value);
+    $('termGlyphWarning').hidden=valid;
+    $('termGlyphCustom').setAttribute('aria-invalid',String(!valid));
+    if(state.generated)markDirty();
+    scheduleTextPreview();
+  }
+  $('termGlyph').addEventListener('change',updateGlyphSelection);
+  $('termGlyphCustom').addEventListener('input',updateGlyphSelection);
+  updateGlyphSelection();
+  $('termFontSize').addEventListener('input',e=>{
+    const size=Number(e.target.value);
+    $('consoleTextPreview').style.fontSize=size+'px';
+    $('termFontLabel').textContent=size+' px';
+    applyTextZoom();
+  });
+  $('zoomInBtn').addEventListener('click',()=>setZoom(zoomByView[currentView]*1.4));
+  $('zoomOutBtn').addEventListener('click',()=>setZoom(zoomByView[currentView]/1.4));
+  $('zoomResetBtn').addEventListener('click',()=>setZoom(1));
+  $('zoomFitBtn').addEventListener('click',fitZoom);
+  $('zoomValue').addEventListener('change',e=>setZoom(Number(e.target.value)));
+  $('zoomValue').addEventListener('keydown',e=>{if(e.key==='Enter'){setZoom(Number(e.target.value));e.target.blur();}});
+  $('zoomPreview').addEventListener('change',()=>setZoom(Number($('zoomPreview').value)));
+  $('toggleVisualBody').addEventListener('click',()=>{const collapsed=workspace.classList.toggle('visual-collapsed');$('toggleVisualBody').textContent=collapsed?'▶':'▼';});
+  // Ctrl/Alt + rueda acerca o aleja bajo el puntero. Sin modificadores, la rueda desplaza.
+  const scrollers=[
+    $('consoleTextPane').querySelector('.terminal-scroll'),
+    $('quantWrap'),$('origCanvas').parentElement
+  ];
+  for(const el of scrollers){
+    el.addEventListener('wheel',e=>{
+      if(!(e.ctrlKey||e.metaKey||e.altKey))return;
+      if(el!==activeScroller())return;
+      e.preventDefault();
+      const factor=Math.exp(-e.deltaY*0.002);
+      setZoom(zoomByView[currentView]*factor,e);
+    },{passive:false});
+  }
+  let spaceHeld=false;
+  document.addEventListener('keydown',e=>{
+    if(e.code==='Space' && !/^(INPUT|TEXTAREA|SELECT|BUTTON)$/.test(document.activeElement?.tagName||'')){
+      spaceHeld=true;e.preventDefault();
+    }
+  });
+  document.addEventListener('keyup',e=>{if(e.code==='Space')spaceHeld=false;});
+  window.addEventListener('blur',()=>spaceHeld=false);
+  // Rueda central o espacio+arrastre desplaza sin activar el pincel de píxeles.
+  for(const el of scrollers){
+    let pan=null;
+    el.addEventListener('pointerdown',e=>{
+      if(el!==activeScroller() || !(e.button===1||(e.button===0&&spaceHeld)))return;
+      e.preventDefault();e.stopImmediatePropagation();
+      pan={id:e.pointerId,x:e.clientX,y:e.clientY,left:el.scrollLeft,top:el.scrollTop};
+      el.classList.add('panning');el.setPointerCapture(e.pointerId);
+    },true);
+    el.addEventListener('pointermove',e=>{
+      if(!pan||pan.id!==e.pointerId)return;
+      e.preventDefault();e.stopImmediatePropagation();
+      el.scrollLeft=pan.left+pan.x-e.clientX;
+      el.scrollTop=pan.top+pan.y-e.clientY;
+    },true);
+    const end=e=>{if(!pan||pan.id!==e.pointerId)return;e.stopImmediatePropagation();pan=null;el.classList.remove('panning');};
+    el.addEventListener('pointerup',end,true);el.addEventListener('pointercancel',end,true);
+  }
+  $('toggleVisualBody').textContent='▼';
+  selectView('console');
+  window.PseudoLibStudio={selectView,updateTextPreview,toggleSidebar,setZoom,fitZoom,syncPreviewZoomUI,getZoom:()=>zoomByView[currentView]};
+})();
+</script>
+</body>
+</html>

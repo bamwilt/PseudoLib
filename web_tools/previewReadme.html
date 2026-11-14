@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>README.md · PseudoLib</title>
+  <style>
+    :root { color-scheme:light; --bg:#fff; --fg:#1f2328; --muted:#59636e; --border:#d1d9e0; --soft:#f6f8fa; --code:#818b981f; --link:#0969da; --purple:#8250df; }
+    [data-theme="dark"] { color-scheme:dark; --bg:#0d1117; --fg:#f0f6fc; --muted:#9198a1; --border:#3d444d; --soft:#151b23; --code:#656c7633; --link:#4493f8; --purple:#ab7df8; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji"; font-size:14px; }
+    .toolbar { max-width:1012px; margin:24px auto 12px; padding:0 16px; display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+    .toolbar span { color:var(--muted); font-size:12px; flex:1; }
+    button,.file-label { background:var(--soft); border:1px solid var(--border); border-radius:6px; padding:5px 12px; color:var(--fg); font:inherit; font-weight:500; cursor:pointer; }
+    button:hover,.file-label:hover { border-color:var(--muted); }
+    :focus-visible { outline:2px solid var(--link); outline-offset:3px; }
+    .file-label { position:relative; }
+    .file-label input { position:absolute; inset:0; opacity:0; width:100%; cursor:pointer; }
+    .file-label:focus-within { outline:2px solid var(--link); outline-offset:3px; }
+    main { max-width:1012px; margin:0 auto 32px; border:1px solid var(--border); border-radius:6px; overflow:hidden; }
+    .file-header { display:flex; align-items:center; gap:8px; padding:16px; border-bottom:1px solid var(--border); font-weight:600; }
+    .file-header svg { color:var(--muted); }
+    .markdown-body { padding:32px; font-size:16px; line-height:1.5; overflow-wrap:break-word; }
+    .markdown-body>:first-child { margin-top:0!important; }
+    .markdown-body>:last-child { margin-bottom:0!important; }
+    p,ul,table,blockquote { margin-top:0; margin-bottom:16px; }
+    p { white-space:normal; }
+    a { color:var(--link); text-decoration:none; }
+    a:hover { text-decoration:underline; }
+    strong { font-weight:600; }
+    img { max-width:100%; height:auto; background:var(--bg); vertical-align:middle; }
+    h1,h2,h3,h4 { margin-top:24px; margin-bottom:16px; font-weight:600; line-height:1.25; }
+    h1,h2 { border-bottom:1px solid var(--border); padding-bottom:.3em; }
+    h1 { font-size:2em; } h2 { font-size:1.5em; } h3 { font-size:1.25em; } h4 { font-size:1em; }
+    hr { height:.25em; padding:0; margin:24px 0; background:var(--border); border:0; }
+    code { padding:.2em .4em; margin:0; background:var(--code); border-radius:6px; font:85% ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,"Liberation Mono",monospace; white-space:break-spaces; }
+    .table-scroll { overflow-x:auto; margin-bottom:16px; }
+    table { border-spacing:0; border-collapse:collapse; width:max-content; max-width:100%; margin-bottom:0; }
+    th { font-weight:600; }
+    td,th { padding:6px 13px; border:1px solid var(--border); }
+    tr { background:var(--bg); border-top:1px solid var(--border); }
+    tr:nth-child(2n) { background:var(--soft); }
+    ul { padding-left:2em; } li+li { margin-top:.25em; }
+    blockquote { padding:0 1em; color:var(--muted); border-left:.25em solid var(--border); }
+    .markdown-alert { padding:8px 16px; margin-bottom:16px; border-left:.25em solid var(--link); }
+    .markdown-alert.important { border-color:var(--purple); }
+    .markdown-alert p:last-child { margin-bottom:0; }
+    .markdown-alert .alert-title { display:flex; align-items:center; gap:8px; color:var(--link); font-weight:600; margin-bottom:16px; }
+    .markdown-alert.important .alert-title { color:var(--purple); }
+    @media(max-width:767px) { .toolbar { margin-top:12px; } main { border-left:0; border-right:0; border-radius:0; } .markdown-body { padding:16px; } }
+  </style>
+</head>
+<body>
+  <div class="toolbar" aria-label="Opciones de previsualización">
+    <span id="status" role="status">Copia incluida del README · vista local estilo GitHub</span>
+    <label class="file-label">Cargar README<input id="file" type="file" accept=".md,text/markdown,text/plain" aria-label="Cargar README actualizado"></label>
+    <button id="theme" type="button" aria-pressed="false">Tema oscuro</button>
+  </div>
+  <main>
+    <header class="file-header"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M0 1.75A.75.75 0 0 1 .75 1h4.5c1.1 0 2.1.45 2.75 1.18A3.7 3.7 0 0 1 10.75 1h4.5a.75.75 0 0 1 .75.75v11.5a.75.75 0 0 1-.75.75h-4.5c-.9 0-1.65.4-2.14 1.03a.75.75 0 0 1-1.22 0A2.7 2.7 0 0 0 5.25 14H.75a.75.75 0 0 1-.75-.75Zm1.5.75v10h3.75c.73 0 1.4.17 2 .5V4.75A2.25 2.25 0 0 0 5 2.5Zm7.25 2.25V13c.6-.33 1.27-.5 2-.5h3.75v-10H11a2.25 2.25 0 0 0-2.25 2.25Z"/></svg> README.md</header>
+    <article id="readme" class="markdown-body" aria-label="Contenido del README"></article>
+  </main>
+  <!-- Instantánea para abrir con doble clic, sin servidor ni acceso a internet. -->
+  <script type="text/plain" id="snapshot">
+![Banner de Pseudo Lib](media/pseudoLib_banner.png)
+---
+
+PseudoLib es una librería de pseudocódigo desarrollada para PSeInt. Su objetivo es ampliar las posibilidades del entorno mediante la simulación de estructuras y funciones que no ofrece de forma nativa. Se basa principalmente en Java, con ideas de JavaScript, C y otros lenguajes, sin reproducir fielmente uno en particular.
+
+**Versión actual: 0.9.7** · La versión anterior, 0.9.3, se conserva en [src/PseudoLib_old.psc](src/PseudoLib_old.psc). El código actual está en [src/PseudoLib.psc](src/PseudoLib.psc).
+
+> [!IMPORTANT]
+> Este proyecto es experimental y no tiene un fin pedagógico específico. Para su uso y comprensión se requieren bases de programación. Puede utilizarse para explorar las funciones y observar su comportamiento.
+
+---
+## Media
+
+![Imagen de Doom dibujada en PSeInt](media/doom_image_in_pseint_native_curso_and_color.jpeg)
+*Imagen de Doom dibujada mediante caracteres y color en PSeInt; no corresponde a la ejecución del juego.*
+
+![Pruebas de color mediante tramas de caracteres en PSeInt](media/color_4b_simulating_9b.jpeg)
+*Simulación de color de 9 bits a partir de colores de 4 bits mediante tramas de caracteres en la consola.*
+
+![demoTUI](media/TUI_Example.png)
+*Interfaz dibujada en la consola de PSeInt.*
+
+---
+## Modules
+
+Módulos de la versión **0.9.7**. El estado “Stable” se refiere al desarrollo dentro de este proyecto experimental y no garantiza la ausencia de errores.
+
+| NAME MODULE | USE | STATE |
+| :--- | :--- | :---: |
+| NATIVE | `native_` | `[+]` |
+| INPUT | `user_input_` | `[+]` |
+| STRING | `string_` | `[+]` |
+| ARRAY | `array_` | `[p]` |
+| PRINTERS | `print_ : prinln_` | `[p]` |
+| SLEEP | `sleep_` | `[+]` |
+| LOGS | `log_` | `[+]` |
+| TEST | `test_` | `[+]` |
+| NUMBER | `int_ / number_ / float` | `[+]` |
+| BINARY_STRING | `binarystring_` | `[+]` |
+| MATH | `math_` | `[+]` |
+| BOOLEAN | `boolean_` | `[+]` |
+| COLOR | `COLOR_` | `[+]` |
+| VALUE | `value_` | `[+]` |
+| TAG | `tag_` | `[+]` |
+| POINTER_STRING | `stringPointer_` | `[+]` |
+| COLLECTION | `collection_` | `[+]` |
+| COLLECTION_UNIFORM | `collectionUniform_` | `[+]` |
+| COLLECTION_ROUTED | `collectionRouted_` | `[+]` |
+| COLLECTION_DICTIONARY | `collectionDictionary_` | `[p]` |
+| COLLECTION_DUAL_UNIFORM | `collectionDualUniform_` | `[x]` |
+| COLLECTION_DICTIONARY_TYPED | `collectionDictionaryTyped_` | `[x]` |
+| DEQUE | `util_deque_` | `[+]` |
+| QUEUE | `util_queue_` | `[+]` |
+| STACK | `util_stack_` | `[+]` |
+| TEMPORAL\CHRONO_UNIT | `temporal_ : chrono_unit` | `[+]` |
+| LOCALDATE | `localDate_` | `[+]` |
+| LOCALTIME | `localTime_` | `[+]` |
+| LOCALDATE_TIME | `localDate_time_` | `[+]` |
+| DURATION | `duration_` | `[+]` |
+| PERIOD | `period_` | `[+]` |
+| LIST | `util_list_` | `[+]` |
+| SET | `util_set_` | `[+]` |
+| MAP | `util_map_` | `[p]` |
+| OBJECTS | `object_` | `[x]` |
+| CANVAS | `canvas_` | `[+]` |
+| SPRITE | `sprite_` | `[p]` |
+| TUI | `tui_` | `[x]` |
+| TCOMPONENT | `tComponent_` | `[p]` |
+| SCHEME | `scheme_` | `[x]` |
+| VEC | `vec_` | `[x]` |
+| ASCII/HASH | `ascii_` | `[+]` |
+| CONSOLE | `console_` | `[+]` |
+
+> [!NOTE]
+> 0.9.7 | `pseint.2023` | 43 entradas en la tabla de módulos, incluidas las pendientes.
+
+### Dependencias entre módulos
+
+![Diagrama de módulos y sus dependencias](media/grafico%20de%20modulos.svg)
+
+*Relaciones y dependencias entre módulos. [Ver el SVG completo](media/grafico%20de%20modulos.svg).*
+
+---
+
+#### State module
+
+| STATE | DESCRIPTION |
+| :---: | :--- |
+| `[+]` | Stable |
+| `[D]` | Current Development (Unusable temporarily) |
+| `[p]` | Stable (Pending additions) |
+| `[x]` | Unusable / undeveloped state |
+
+### Herramientas y documentación
+
+- [Generador de imágenes para PSeInt](web_tools/ImageGenerator.html).
+- [Build PseudoLib](web_tools/Build_PseudoLib/index.html): herramienta para integrar código y sus dependencias. [Instrucciones](web_tools/Build_PseudoLib/README.md).
+- [Wiki de módulos](documentation/wiki/modules): puede presentar diferencias con la versión actual. El código de la 0.9.7 es la referencia principal.
+
+---
+
+#### Próximamente / En desarrollo
+
+- Algoritmos de ordenamiento de arreglos compatibles con la estructura String
+- Vectores Cruz y Punto a partir de Cadenas y arreglos
+- Regex(Pattern/Matcher)
+- QR
+
+> [!NOTE]
+> La mayoría de cosas complejas se manejan mediante asignaciones y texto.
+> Es simulación, con el objetivo de programar cosas complejas con flexibilidad.
+  </script>
+  <script>
+    // Renderer limitado al Markdown usado aquí: texto escapado, sin ejecutar HTML.
+    const article = document.getElementById('readme');
+    const status = document.getElementById('status');
+    const root = new URL('../', location.href);
+    const escape = text => text.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    function url(path) {
+      try {
+        const resolved = new URL(path, root);
+        return ['http:', 'https:', 'file:'].includes(resolved.protocol) ? escape(resolved.href) : '#';
+      } catch { return '#'; }
+    }
+    function inline(text) {
+      const tokens = [];
+      const token = html => '\u0000' + (tokens.push(html) - 1) + '\u0000';
+      text = text.replace(/\u0000/g, '');
+      text = text.replace(/`([^`]+)`/g, (_, code) => token('<code>' + escape(code) + '</code>'));
+      text = text.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (_, alt, path) => token('<img src="' + url(path) + '" alt="' + escape(alt) + '">'));
+      text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_, label, path) => token('<a href="' + url(path) + '">' + escape(label) + '</a>'));
+      return escape(text).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/\*([^*]+)\*/g, '<em>$1</em>').replace(/\u0000(\d+)\u0000/g, (_, i) => tokens[Number(i)]);
+    }
+    function render(markdown) {
+      const lines = markdown.replace(/\r/g, '').trim().split('\n').map(line => line.trimEnd());
+      const html = [];
+      const cells = line => line.trim().replace(/^\||\|$/g, '').split('|').map(c => c.trim());
+      const special = line => !line.trim() || /^(#{1,6}\s|---\s*$|>\s?|\||- )/.test(line);
+      for (let i = 0; i < lines.length;) {
+        const line = lines[i];
+        if (!line.trim()) { i++; continue; }
+        if (/^---\s*$/.test(line)) { html.push('<hr>'); i++; continue; }
+        const heading = line.match(/^(#{1,6})\s+(.+)/);
+        if (heading) { const n = heading[1].length; html.push('<h' + n + '>' + inline(heading[2]) + '</h' + n + '>'); i++; continue; }
+        if (line.startsWith('|') && i + 1 < lines.length && /^\|[\s:|\-]+$/.test(lines[i + 1])) {
+          const headers = cells(line), align = cells(lines[i + 1]).map(c => c.startsWith(':') && c.endsWith(':') ? 'center' : c.endsWith(':') ? 'right' : 'left');
+          const row = (values, tag) => '<tr>' + values.map((c, j) => '<' + tag + ' style="text-align:' + align[j] + '">' + inline(c) + '</' + tag + '>').join('') + '</tr>';
+          let table = '<div class="table-scroll"><table><thead>' + row(headers, 'th') + '</thead><tbody>';
+          i += 2;
+          while (i < lines.length && lines[i].startsWith('|')) table += row(cells(lines[i++]), 'td');
+          html.push(table + '</tbody></table></div>'); continue;
+        }
+        if (line.startsWith('>')) {
+          const quote = [];
+          while (i < lines.length && lines[i].startsWith('>')) quote.push(lines[i++].replace(/^> ?/, ''));
+          const alert = quote[0].match(/^\[!(IMPORTANT|NOTE)\]$/);
+          if (alert) {
+            const important = alert[1] === 'IMPORTANT';
+            const icon = important ? '<path d="M4.75.75h6.5A2.75 2.75 0 0 1 14 3.5v5A2.75 2.75 0 0 1 11.25 11h-4.3L3.5 14.5V11A2.75 2.75 0 0 1 2 8.5v-5A2.75 2.75 0 0 1 4.75.75Z" fill="none" stroke="currentColor"/><path d="M8 3v3m0 1.5v1" stroke="currentColor" stroke-width="1.5"/>' : '<path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1Z" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 7v4m0-7v1" stroke="currentColor" stroke-width="1.5"/>';
+            html.push('<div class="markdown-alert ' + (important ? 'important' : 'note') + '"><p class="alert-title"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">' + icon + '</svg>' + (important ? 'Important' : 'Note') + '</p><p>' + inline(quote.slice(1).join('\n')) + '</p></div>');
+          } else html.push('<blockquote><p>' + inline(quote.join('\n')) + '</p></blockquote>');
+          continue;
+        }
+        if (line.startsWith('- ')) {
+          let list = '<ul>';
+          while (i < lines.length && lines[i].startsWith('- ')) list += '<li>' + inline(lines[i++].slice(2)) + '</li>';
+          html.push(list + '</ul>'); continue;
+        }
+        const paragraph = [lines[i++]];
+        while (i < lines.length && !special(lines[i])) paragraph.push(lines[i++]);
+        html.push('<p>' + inline(paragraph.join('\n')) + '</p>');
+      }
+      article.innerHTML = html.join('\n');
+    }
+    render(document.getElementById('snapshot').textContent);
+    // En HTTP se lee el README real; file:// usa la instantánea por las restricciones del navegador.
+    if (location.protocol === 'http:' || location.protocol === 'https:') {
+      fetch(new URL('README.md', root), { cache:'no-store' }).then(response => {
+        if (!response.ok) throw new Error('README no disponible');
+        return response.text();
+      }).then(text => { render(text); status.textContent = 'README.md actualizado desde el repositorio'; })
+        .catch(() => { status.textContent = 'No se pudo leer README.md; mostrando la copia incluida. Puedes cargarlo manualmente.'; });
+    }
+    document.getElementById('file').addEventListener('change', async event => {
+      const file = event.target.files[0];
+      if (!file) return;
+      try { render(await file.text()); status.textContent = 'Vista del archivo: ' + file.name; }
+      catch { status.textContent = 'No se pudo leer el archivo. Selecciona README.md de nuevo.'; }
+    });
+    document.getElementById('theme').addEventListener('click', event => {
+      const dark = document.documentElement.dataset.theme !== 'dark';
+      document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+      event.currentTarget.textContent = dark ? 'Tema claro' : 'Tema oscuro';
+      event.currentTarget.setAttribute('aria-pressed', String(dark));
+    });
+  </script>
+</body>
+</html>
